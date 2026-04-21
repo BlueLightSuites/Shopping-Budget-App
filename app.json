@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Price Scanner",
+    "slug": "price-scanner-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to scan barcodes for product information.",
+        "NSMicrophoneUsageDescription": "This app uses the microphone for audio feedback."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-barcode-scanner",
+      "expo-av",
+      "expo-font",
+      "expo-asset"
+    ],
+    "extra": {
+      "KROGER_CLIENT_ID": "price-scanner-bbc668lf",
+      "KROGER_CLIENT_SECRET": "2PsBHQ6L7ZuQtRiRK4YEb4Be2rMKdF1i48tgvKw5",
+      "KROGER_BASIC_TOKEN": "cHJpY2Utc2Nhbm5lci1iYmM2NjhsZjpuVWFoejltdURNRVRwSkVDSGtuZlR3d0ZwekJIM3FOT2VIZ21vaUFr"
+    }
+  }
+}
