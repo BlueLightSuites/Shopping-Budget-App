@@ -18,6 +18,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useToast } from 'react-native-toast-notifications';
 import { RootStackParamList, CartItem } from '../types';
 import { apiService } from '../services/api';
+import { walmartApiService } from '../services/walmart-api';
 
 import ItemConfirmationModal from '../components/ItemConfirmationModal/ItemConfirmationModal';
 import UnrecognizedBarcodeModal from '../components/UnrecognizedBarcodeModal/UnrecognizedBarcodeModal';
@@ -32,7 +33,7 @@ export default function ScanViewScreen() {
   const route = useRoute<ScanViewScreenRouteProp>();
   const toast = useToast();
 
-  const { budget, zipCode, existingItems = [] } = route.params;
+  const { budget, zipCode, store, existingItems = [] } = route.params;
   const [items, setItems] = useState<CartItem[]>(existingItems); // Shopping list state
 
   // Sync items when returning from MainShoppingScreen (e.g. after a deletion)
@@ -64,58 +65,85 @@ export default function ScanViewScreen() {
     }
   }, [permission]);
 
-  const handleBarCodeScanned = async (scanningResult: BarcodeScanningResult) => {
+  // Pre-fetch the location/store ID as soon as the screen mounts so the
+  // first scan has zero extra latency waiting on a location lookup.
+  useEffect(() => {
+    if (store === 'walmart') {
+      walmartApiService.getStoreIdByZip(zipCode);
+    } else {
+      apiService.getLocationIdByZip(zipCode);
+    }
+  }, [zipCode, store]);
+
+  const handleBarCodeScanned = (scanningResult: BarcodeScanningResult) => {
     if (scanned || loading) return;
-    
+
     let { data } = scanningResult;
     if (!data) return;
 
     console.log('Raw barcode scanned:', data);
-    
-    // Format barcode: remove trailing character (check digit), then pad to 13 digits for Kroger API
-    let formattedBarcode = data.slice(0, -1);
-    // let formattedBarcode = '0011110823540';
-    while (formattedBarcode.length < 13) {
-      formattedBarcode = formattedBarcode.padStart(13, '0');
+
+    let formattedBarcode: string;
+    if (store === 'walmart') {
+      formattedBarcode = data;
+    } else {
+      formattedBarcode = data.slice(0, -1);
+      while (formattedBarcode.length < 13) {
+        formattedBarcode = formattedBarcode.padStart(13, '0');
+      }
     }
-    
+
     console.log('Formatted barcode:', formattedBarcode);
-    
+
+    // Set state synchronously — React re-renders and shows the loading modal
+    // BEFORE the API call starts (handled in the useEffect below)
     setScanned(true);
     setLoading(true);
     setScannedBarcode(formattedBarcode);
-    
-    // Trigger haptic feedback (commented out for now)
-    // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
-    try {
-      console.log('Searching for barcode:', formattedBarcode);
-      const locationId = await apiService.getLocationIdByZip(zipCode);
-      console.log('Got location ID:', locationId);
-      const result = await apiService.searchProductByBarcode(formattedBarcode, locationId);
-      
-      console.log('Search result:', result);
-      if (result.success && result.product) {
-        setScannedProduct(result.product);
-        setShowItemModal(true);
-      } else {
-        toast.show('Product not found. Please enter manually.', { 
-          type: 'warning', 
-          duration: 3000 
+  };
+
+  // Fires the API lookup only after React has committed the loading state to the UI
+  useEffect(() => {
+    if (!loading || !scannedBarcode) return;
+
+    const doSearch = async () => {
+      try {
+        console.log('Searching for barcode:', scannedBarcode);
+
+        let result;
+        if (store === 'walmart') {
+          result = await walmartApiService.searchProductByBarcode(scannedBarcode);
+        } else {
+          const locationId = await apiService.getLocationIdByZip(zipCode);
+          console.log('Got location ID:', locationId);
+          result = await apiService.searchProductByBarcode(scannedBarcode, locationId);
+        }
+
+        console.log('Search result:', result);
+        if (result.success && result.product) {
+          setScannedProduct(result.product);
+          setTimeout(() => setShowItemModal(true), 50);
+        } else {
+          toast.show('Product not found. Please enter manually.', {
+            type: 'warning',
+            duration: 3000,
+          });
+          setShowUnrecognizedModal(true);
+        }
+      } catch (error: any) {
+        console.error('Scan error:', error);
+        toast.show('Error searching for product. Please try again.', {
+          type: 'danger',
+          duration: 3000,
         });
         setShowUnrecognizedModal(true);
+      } finally {
+        setLoading(false);
       }
-    } catch (error: any) {
-      console.error('Scan error:', error);
-      toast.show('Error searching for product. Please try again.', { 
-        type: 'danger', 
-        duration: 3000 
-      });
-      setShowUnrecognizedModal(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    doSearch();
+  }, [scannedBarcode, loading]);
 
   const handleFlashToggle = () => {
     setFlash(flash === 'off' ? 'on' : 'off');
@@ -184,7 +212,7 @@ export default function ScanViewScreen() {
 
   // Navigate to MainShoppingScreen with budget and items
   const handleGoToMainShopping = () => {
-    navigation.navigate('MainShopping', { budget, zipCode, items });
+    navigation.navigate('MainShopping', { budget, zipCode, store, items });
   };
 
   const handleUnrecognizedDismissed = () => {
@@ -263,20 +291,14 @@ export default function ScanViewScreen() {
 
           {/* Scanning Frame */}
           <View style={styles.scanFrame}>
-            <View style={styles.cornerTL} />
-            <View style={styles.cornerTR} />
-            <View style={styles.cornerBL} />
-            <View style={styles.cornerBR} />
+            <View style={[styles.cornerTL, loading && styles.cornerLoading]} />
+            <View style={[styles.cornerTR, loading && styles.cornerLoading]} />
+            <View style={[styles.cornerBL, loading && styles.cornerLoading]} />
+            <View style={[styles.cornerBR, loading && styles.cornerLoading]} />
           </View>
 
           {/* Instructions */}
           <View style={styles.instructions}>
-            {loading && (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color="#4A90E2" />
-                <Text style={styles.loadingText}>Searching for product...</Text>
-              </View>
-            )}
             {!loading && (
               <Text style={styles.instructionText}>
                 Position barcode in the frame
@@ -330,6 +352,17 @@ export default function ScanViewScreen() {
         onAdd={handleUnrecognizedItemAdded}
         onDismiss={handleUnrecognizedDismissed}
       />
+
+      {/* Loading overlay — rendered as a Modal so it sits above the camera */}
+      <Modal visible={loading} transparent animationType="none" statusBarTranslucent>
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingCard}>
+            <ActivityIndicator size="large" color="#10B981" />
+            <Text style={styles.loadingCardTitle}>Looking up product…</Text>
+            <Text style={styles.loadingCardSubtitle}>Please hold still</Text>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -480,6 +513,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'white',
     marginLeft: 8,
+  },
+  // Modal loading overlay — covers the entire screen above the camera
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingCard: {
+    backgroundColor: '#1E293B',
+    borderRadius: 20,
+    paddingVertical: 32,
+    paddingHorizontal: 40,
+    alignItems: 'center',
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  loadingCardTitle: {
+    color: '#F1F5F9',
+    fontSize: 17,
+    fontWeight: '700',
+    marginTop: 4,
+  },
+  loadingCardSubtitle: {
+    color: '#94A3B8',
+    fontSize: 13,
+  },
+  // Corner brackets turn amber while loading
+  cornerLoading: {
+    borderColor: '#F59E0B',
   },
   itemsCountText: {
     fontSize: 12,

@@ -8,6 +8,10 @@ yarn-error.log*
 # Environment variables — never commit secrets
 .env
 .env.local
+
+# Walmart API Keys — never commit private keys
+walmart_private_key.pem
+walmart_public_key.pem
 .env.*.local
 
 # Expo / React Native

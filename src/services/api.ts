@@ -73,10 +73,13 @@ class ApiService {
   }
 
   /**
-   * Search for the location ID based on zip code
+   * Search for the location ID based on zip code.
+   * Result is cached for the session — only fetches once per zip code.
    */
   async getLocationIdByZip(zipCode: string): Promise<string | null> {
     try {
+      // Return cached value if already fetched
+      if (locationId) return locationId;
 
       if (!this.isTokenValid()) {
         await this.getOauthToken();

@@ -38,11 +38,13 @@ export interface BudgetSettings {
   notifications: boolean;
 }
 
+export type StoreId = 'kroger' | 'walmart';
+
 export type RootStackParamList = {
   Home: undefined;
   BudgetInput: undefined;
-  ScanView: { budget: number; zipCode: string; existingItems?: CartItem[] };
-  MainShopping: { budget: number; zipCode: string; items: CartItem[] };
+  ScanView: { budget: number; zipCode: string; store: StoreId; existingItems?: CartItem[] };
+  MainShopping: { budget: number; zipCode: string; store: StoreId; items: CartItem[] };
   Cart: { tripId: string };
   Settings: undefined;
   RecentTrips: undefined;

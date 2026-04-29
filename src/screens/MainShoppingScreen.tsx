@@ -25,7 +25,7 @@ const BUDGET_MILESTONES = [0.75, 1];
 const MainShoppingScreen: React.FC = () => {
   const route = useRoute<MainShoppingScreenRouteProp>();
   const navigation = useNavigation<MainShoppingScreenNavigationProp>();
-  const { budget = 0, zipCode = '', items: initialItems = [] } = route.params ?? {};
+  const { budget = 0, zipCode = '', store, items: initialItems = [] } = route.params ?? {};
   const [items, setItems] = useState(initialItems);
   const [shownMilestones, setShownMilestones] = useState<number[]>([]);
   const [tripFinished, setTripFinished] = useState(false);
@@ -124,7 +124,7 @@ const MainShoppingScreen: React.FC = () => {
       <FlatList
         data={items.map(item => ({
           id: item.product.id,
-          description: item.product.description,
+          description: item.product.name ?? item.product.description,
           price: item.product.price,
           quantity: item.quantity,
         }))}
@@ -166,7 +166,7 @@ const MainShoppingScreen: React.FC = () => {
           ) : (
             <TouchableOpacity
               style={styles.scanMoreBtn}
-              onPress={() => navigation.navigate('ScanView', { budget, zipCode, existingItems: items })}
+              onPress={() => navigation.navigate('ScanView', { budget, zipCode, store, existingItems: items })}
             >
               <Ionicons name="scan" size={20} color="#4A90E2" />
               <Text style={styles.scanMoreText}>Scan More</Text>

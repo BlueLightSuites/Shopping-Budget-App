@@ -1,4 +1,4 @@
-import { RootStackParamList } from '@/types';
+import { RootStackParamList, StoreId } from '@/types';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useState } from 'react';
@@ -26,9 +26,9 @@ import { AdBanner } from '../AdBanner/AdBanner';
 type StoreLocatorNavigationProp = StackNavigationProp<RootStackParamList, 'StoreSelector'>;
 type StoreSelectorScreenRouteProp = RouteProp<RootStackParamList, 'StoreSelector'>;
 
-const stores = [
-  { id: 1, name: "Smith's Food and Drug" },
-  { id: 2, name: 'Walmart' },
+const stores: { id: number; name: string; storeId: StoreId }[] = [
+  { id: 1, name: "Smith's Food and Drug", storeId: 'kroger' },
+  { id: 2, name: 'Walmart', storeId: 'walmart' },
 ];
 
 const StoreSelector = () => {
@@ -44,10 +44,12 @@ const StoreSelector = () => {
 
   const handleConfirm = async () => {
     if (zipCode.trim()) {
-      console.log(`Selected Store: ${selectedStore}, Zip Code: ${zipCode}`);
+      const selected = stores.find((s) => s.id === selectedStore);
+      if (!selected) return;
+      console.log(`Selected Store: ${selected.storeId}, Zip Code: ${zipCode}`);
       (navigation as any).navigate('ShoppingTab', {
         screen: 'ScanView',
-        params: { budget, zipCode },
+        params: { budget, zipCode, store: selected.storeId },
       });
     } else {
       alert('Please enter a valid zip code.');
