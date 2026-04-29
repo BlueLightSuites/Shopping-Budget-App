@@ -5,6 +5,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# Environment variables — never commit secrets
+.env
+.env.local
+.env.*.local
+
 # Expo / React Native
 .expo/
 .expo-shared/

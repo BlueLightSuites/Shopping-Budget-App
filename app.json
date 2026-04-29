@@ -44,9 +44,7 @@
       "expo-asset"
     ],
     "extra": {
-      "KROGER_CLIENT_ID": "price-scanner-bbc668lf",
-      "KROGER_CLIENT_SECRET": "2PsBHQ6L7ZuQtRiRK4YEb4Be2rMKdF1i48tgvKw5",
-      "KROGER_BASIC_TOKEN": "cHJpY2Utc2Nhbm5lci1iYmM2NjhsZjpuVWFoejltdURNRVRwSkVDSGtuZlR3d0ZwekJIM3FOT2VIZ21vaUFr"
+      "KROGER_CLIENT_ID": "price-scanner-bbc668lf"
     }
   }
 }

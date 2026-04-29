@@ -23,7 +23,9 @@ class ApiService {
     timeout: 10000,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${KROGER_BASIC_TOKEN}`
+      'Authorization': `Basic ${KROGER_BASIC_TOKEN}`,
+      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      'Accept': 'application/json',
     },
     
   });
@@ -32,6 +34,8 @@ class ApiService {
     baseURL: KROGER_API_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      'Accept': 'application/json',
     }
   })
 
@@ -110,12 +114,12 @@ class ApiService {
       }
 
       const krogerResponse = await this.api.get(
-        `products/${barcode}?filter.locationId=${locationId || ''}`
+        `/products?filter.term=${barcode}&filter.locationId=${locationId || ''}`
       );
       const krogerData = krogerResponse.data as any;
 
-      if (krogerData.data) {
-        const krogerProduct = krogerData.data;
+      if (krogerData.data && Array.isArray(krogerData.data) && krogerData.data.length > 0) {
+        const krogerProduct = krogerData.data[0];
         return {
           success: true,
           barcode,

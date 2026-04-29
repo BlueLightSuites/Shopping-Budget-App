@@ -111,7 +111,7 @@ export default function UnrecognizedBarcodeModal({
         <View style={styles.overlay}>
           <View style={styles.modal}>
             <LinearGradient
-              colors={['#FF6B6B', '#FF8E53']}
+              colors={['#0F172A', '#1E3A5F']}
               style={styles.modalGradient}
             >
               {/* Header */}
@@ -201,7 +201,7 @@ export default function UnrecognizedBarcodeModal({
                   onPress={handleAdd}
                 >
                   <LinearGradient
-                    colors={['#4A90E2', '#357ABD']}
+                    colors={['#10B981', '#059669']}
                     style={styles.addButtonGradient}
                   >
                     <Ionicons name="add-circle" size={20} color="white" />

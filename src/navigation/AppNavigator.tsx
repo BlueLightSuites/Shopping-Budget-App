@@ -13,7 +13,6 @@ import SettingsScreen from '../screens/SettingsScreen';
 import StoreSelector from '@/components/StoreSelector/StoreSelector';
 import { BiometricProvider, useBiometric } from '../contexts/BiometricContext';
 import LockScreen from '../screens/LockScreen';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -92,8 +91,7 @@ function AppContent() {
   }
 
   return (
-    // <LinearGradient colors={['#0F172A', '#1E3A5F']}>
-      <Tab.Navigator
+    <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarIcon: ({ focused, color, size }) => {
@@ -153,7 +151,6 @@ function AppContent() {
           }}
         />
       </Tab.Navigator>
-      // </LinearGradient>
   );
 }
 

@@ -72,7 +72,7 @@ export default function ItemConfirmationModal({
       <View style={styles.overlay}>
         <View style={styles.modal}>
           <LinearGradient
-            colors={['#4A90E2', '#357ABD']}
+            colors={['#0F172A', '#1E3A5F']}
             style={styles.modalGradient}
           >
             {/* Header */}
@@ -86,7 +86,7 @@ export default function ItemConfirmationModal({
             {/* Product Info */}
             <View style={styles.productInfo}>
               <View style={styles.productImage}>
-                <Ionicons name="basket" size={48} color="#4A90E2" />     
+                <Ionicons name="basket" size={48} color="#10B981" />     
               </View>
               
               <Text style={styles.productName}>{product.description}</Text>
@@ -109,7 +109,7 @@ export default function ItemConfirmationModal({
                   style={styles.quantityButton}
                   onPress={handleQuantityDecrement}
                 >
-                  <Ionicons name="remove" size={20} color="#4A90E2" />
+                  <Ionicons name="remove" size={20} color="#10B981" />
                 </TouchableOpacity>
                 
                 <TextInput
@@ -124,7 +124,7 @@ export default function ItemConfirmationModal({
                   style={styles.quantityButton}
                   onPress={handleQuantityIncrement}
                 >
-                  <Ionicons name="add" size={20} color="#4A90E2" />
+                  <Ionicons name="add" size={20} color="#10B981" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -149,7 +149,7 @@ export default function ItemConfirmationModal({
                 onPress={handleConfirm}
               >
                 <LinearGradient
-                  colors={['#FF6B6B', '#FF8E53']}
+                  colors={['#10B981', '#059669']}
                   style={styles.confirmButtonGradient}
                 >
                   <Ionicons name="add-circle" size={20} color="white" />
