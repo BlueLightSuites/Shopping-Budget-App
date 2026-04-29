@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,70 +6,75 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  ScrollView,
+  FlatList,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList, ShoppingTrip } from '../types';
-import { AdBanner } from '../components/AdBanner';
+import { useFocusEffect } from '@react-navigation/native';
+import { ShoppingTrip } from '../types';
+import { AdBanner } from '../components/AdBanner/AdBanner';
+import { loadTrips } from '../utilities/tripStorage';
 
-type RecentTripsNavigationProp = StackNavigationProp<RootStackParamList, 'RecentTrips'>;
+const PAGE_SIZE = 10;
 
 const RecentTripsScreen = () => {
-  const navigation = useNavigation<RecentTripsNavigationProp>();
   const [trips, setTrips] = useState<ShoppingTrip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  useEffect(() => {
-    // TODO: Fetch recent trips from local storage or database
-    // For now, we'll use mock data
-    const mockTrips: ShoppingTrip[] = [
-      {
-        id: '1',
-        budget: 100,
-        spent: 87.50,
-        remaining: 12.50,
-        items: [],
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      },
-      {
-        id: '2',
-        budget: 75,
-        spent: 65.25,
-        remaining: 9.75,
-        items: [],
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-        completedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      },
-      {
-        id: '3',
-        budget: 120,
-        spent: 95.00,
-        remaining: 25.00,
-        items: [],
-        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
-        completedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-      },
-    ];
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      setLoading(true);
+      setVisibleCount(PAGE_SIZE);
+      loadTrips().then((data) => {
+        if (active) {
+          setTrips(data);
+          setLoading(false);
+        }
+      });
+      return () => { active = false; };
+    }, [])
+  );
 
-    setTrips(mockTrips);
-    setLoading(false);
-  }, []);
+  const handleEndReached = useCallback(() => {
+    if (loadingMore || visibleCount >= trips.length) return;
+    setLoadingMore(true);
+    // Small delay to show the loading indicator, giving a natural feel
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, trips.length));
+      setLoadingMore(false);
+    }, 400);
+  }, [loadingMore, visibleCount, trips.length]);
 
   const formatDate = (date: Date) => {
+    const d = new Date(date);
     const now = new Date();
-    const diffTime = Math.abs(now.getTime() - new Date(date).getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday);
+    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+    if (d >= startOfToday) return `Today at ${timeStr}`;
+    if (d >= startOfYesterday) return `Yesterday at ${timeStr}`;
+    const diffDays = Math.floor((startOfToday.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 7) {
+      return `${d.toLocaleDateString([], { weekday: 'long' })} at ${timeStr}`;
+    }
+    const sameYear = d.getFullYear() === now.getFullYear();
+    return d.toLocaleDateString([], {
+      month: 'short',
+      day: 'numeric',
+      ...(sameYear ? {} : { year: 'numeric' }),
+    }) + ` at ${timeStr}`;
+  };
 
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
+  const isThisMonth = (date: Date) => {
+    const d = new Date(date);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   };
 
   const renderTripItem = ({ item, index }: { item: ShoppingTrip; index: number }) => (
@@ -77,7 +82,7 @@ const RecentTripsScreen = () => {
       <TouchableOpacity
         style={styles.tripCard}
         onPress={() => {
-          // TODO: Navigate to trip details or allow resuming the trip
+          Alert.alert('Coming Soon', 'Trip detail view will be available in a future update.');
         }}
         activeOpacity={0.7}
       >
@@ -86,7 +91,7 @@ const RecentTripsScreen = () => {
             <Text style={styles.tripDate}>{formatDate(item.createdAt)}</Text>
             <Text style={styles.tripBudget}>Budget: ${item.budget.toFixed(2)}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={24} color="#4A90E2" />
+          <Ionicons name="chevron-forward" size={20} color="#10B981" />
         </View>
         <View style={styles.tripStats}>
           <View style={styles.statItem}>
@@ -95,67 +100,110 @@ const RecentTripsScreen = () => {
           </View>
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Remaining</Text>
-            <Text style={[styles.statValue, { color: '#4CAF50' }]}>
+            <Text style={[styles.statValue, { color: '#10B981' }]}>
               ${item.remaining.toFixed(2)}
             </Text>
           </View>
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Saved</Text>
-            <Text style={[styles.statValue, { color: '#4CAF50' }]}>
+            <Text style={[styles.statValue, { color: '#10B981' }]}>
               {(((item.budget - item.spent) / item.budget) * 100).toFixed(1)}%
             </Text>
           </View>
         </View>
       </TouchableOpacity>
-      
-      {/* Show ad after every 2 trips */}
+
       {(index + 1) % 2 === 0 && <AdBanner size="medium" style={{ marginVertical: 8 }} />}
     </View>
   );
 
+  /** Build a flat list of section-header + trip rows for FlatList */
+  type ListRow =
+    | { type: 'header'; label: string }
+    | { type: 'trip'; trip: ShoppingTrip; globalIndex: number };
+
+  const listData = useMemo<ListRow[]>(() => {
+    const visible = trips.slice(0, visibleCount);
+    const thisMonth = visible.filter((t) => isThisMonth(t.createdAt));
+    const older = visible.filter((t) => !isThisMonth(t.createdAt));
+    const rows: ListRow[] = [];
+    if (thisMonth.length > 0) {
+      rows.push({ type: 'header', label: 'THIS MONTH' });
+      thisMonth.forEach((trip, i) => rows.push({ type: 'trip', trip, globalIndex: i }));
+    }
+    if (older.length > 0) {
+      rows.push({ type: 'header', label: 'EARLIER' });
+      older.forEach((trip, i) =>
+        rows.push({ type: 'trip', trip, globalIndex: i + thisMonth.length })
+      );
+    }
+    return rows;
+  }, [trips, visibleCount]);
+
+  const renderRow = ({ item }: { item: ListRow }) => {
+    if (item.type === 'header') {
+      return <Text style={styles.sectionLabel}>{item.label}</Text>;
+    }
+    return renderTripItem({ item: item.trip, index: item.globalIndex });
+  };
+
+  const ListFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color="#10B981" />
+        <Text style={styles.footerLoaderText}>Loading more trips…</Text>
+      </View>
+    );
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#4A90E2" />
-        <LinearGradient colors={['#4A90E2', '#357ABD']} style={styles.gradient}>
-          <ActivityIndicator size="large" color="white" />
+        <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+        <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>
+          <Text style={styles.headerTitle}>Recent Trips</Text>
+          <Text style={styles.headerSubtitle}>Your shopping history</Text>
         </LinearGradient>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#10B981" />
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4A90E2" />
-      <LinearGradient colors={['#4A90E2', '#357ABD']} style={styles.gradient}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={28} color="white" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Recent Trips</Text>
-          <View style={{ width: 28 }} />
-        </View>
+      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
-        {/* Content */}
-        {trips.length > 0 ? (
-          <ScrollView
-            style={styles.listContent}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {trips.map((trip, index) => renderTripItem({ item: trip, index }))}
-          </ScrollView>
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="folder-open-outline" size={64} color="rgba(255,255,255,0.5)" />
-            <Text style={styles.emptyText}>No shopping trips yet</Text>
-            <Text style={styles.emptySubtext}>
-              Start a new shopping trip to get started
-            </Text>
-          </View>
-        )}
+      {/* Dark navy header */}
+      <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>
+        <Ionicons name="clipboard" size={30} color="white" />
+        <Text style={styles.headerTitle}>Recent Trips</Text>
+        <Text style={styles.headerSubtitle}>Your shopping history</Text>
       </LinearGradient>
+
+      {/* Light content area */}
+      {trips.length > 0 ? (
+        <FlatList
+          data={listData}
+          keyExtractor={(item, index) =>
+            item.type === 'header' ? `header-${item.label}` : `trip-${item.trip.id}-${index}`
+          }
+          renderItem={renderRow}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={<ListFooter />}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="folder-open-outline" size={64} color="#CBD5E1" />
+          <Text style={styles.emptyText}>No shopping trips yet</Text>
+          <Text style={styles.emptySubtext}>Start a new shopping trip to get started</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -163,69 +211,80 @@ const RecentTripsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradient: {
-    flex: 1,
+    backgroundColor: '#F1F5F9',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
+    paddingTop: 36,
+    paddingBottom: 32,
+    paddingHorizontal: 24,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
+    marginTop: 10,
   },
-  listContent: {
-    padding: 16,
-    paddingBottom: 32,
+  headerSubtitle: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.75)',
+    marginTop: 4,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollView: {
+    flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
-    paddingBottom: 32,
-    flexGrow: 1,
+    paddingTop: 20,
+    paddingBottom: 100,
+  },
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: 0.8,
+    marginBottom: 10,
+    marginTop: 4,
   },
   tripCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     marginBottom: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
   },
   tripHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
     paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
   tripInfo: {
     flex: 1,
   },
   tripDate: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: '#1E293B',
   },
   tripBudget: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+    fontSize: 13,
+    color: '#64748B',
+    marginTop: 3,
   },
   tripStats: {
     flexDirection: 'row',
@@ -236,14 +295,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: 11,
+    color: '#94A3B8',
     marginBottom: 4,
+    fontWeight: '500',
   },
   statValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#4A90E2',
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
   },
   emptyContainer: {
     flex: 1,
@@ -254,14 +314,25 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: 'white',
+    color: '#475569',
     marginTop: 16,
   },
   emptySubtext: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: '#94A3B8',
     marginTop: 8,
     textAlign: 'center',
+  },
+  footerLoader: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 16,
+    gap: 8,
+  },
+  footerLoaderText: {
+    fontSize: 13,
+    color: '#64748B',
   },
 });
 

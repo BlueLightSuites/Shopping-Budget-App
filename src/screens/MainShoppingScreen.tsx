@@ -4,7 +4,9 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { useToast } from 'react-native-toast-notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../types';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList, CartItem } from '../types';
+import { saveTrip } from '../utilities/tripStorage';
 
 // ShoppingItem type for local use
 type ShoppingItem = {
@@ -15,21 +17,30 @@ type ShoppingItem = {
   description: string;
 };
 type MainShoppingScreenRouteProp = RouteProp<RootStackParamList, 'MainShopping'>;
+type MainShoppingScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MainShopping'>;
 
 const BUDGET_MILESTONES = [0.75, 1];
 
 
 const MainShoppingScreen: React.FC = () => {
   const route = useRoute<MainShoppingScreenRouteProp>();
-  const navigation = useNavigation();
-  const { budget, items: initialItems } = route.params;
+  const navigation = useNavigation<MainShoppingScreenNavigationProp>();
+  const { budget = 0, zipCode = '', items: initialItems = [] } = route.params ?? {};
   const [items, setItems] = useState(initialItems);
   const [shownMilestones, setShownMilestones] = useState<number[]>([]);
+  const [tripFinished, setTripFinished] = useState(false);
+
+  // Sync items when route params are updated (e.g. returning from ScanViewScreen)
+  useEffect(() => {
+    if (initialItems && initialItems.length > 0) {
+      setItems(initialItems);
+    }
+  }, [initialItems]);
   const toast = useToast();
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.product.price * item.quantity, 0), [items]);
   const remaining = budget - total;
-  const percentUsed = total / budget;
+  const percentUsed = budget > 0 ? total / budget : 0;
 
   // Budget color logic
   let budgetColor = '#4CAF50'; // green
@@ -51,9 +62,21 @@ const MainShoppingScreen: React.FC = () => {
   }, [percentUsed, shownMilestones, toast]);
 
   // Remove item handler
-
   const handleRemove = (id: string) => {
     setItems((prev) => prev.filter((item) => item.product.id !== id));
+  };
+
+  // Quantity change handler — removes the item if quantity reaches 0
+  const handleQuantityChange = (id: string, delta: number) => {
+    setItems((prev) =>
+      prev
+        .map((item) =>
+          item.product.id === id
+            ? { ...item, quantity: item.quantity + delta, totalPrice: item.product.price * (item.quantity + delta) }
+            : item
+        )
+        .filter((item) => item.quantity > 0)
+    );
   };
 
   const renderItem = ({ item }: { item: ShoppingItem }) => (
@@ -61,7 +84,15 @@ const MainShoppingScreen: React.FC = () => {
       <View style={styles.itemInfo}>
         <Text style={styles.itemName}>{item.description}</Text>
         <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
-        <Text style={styles.itemQty}>x{item.quantity}</Text>
+      </View>
+      <View style={styles.qtyControls}>
+        <TouchableOpacity onPress={() => handleQuantityChange(item.id, -1)} style={styles.qtyBtn}>
+          <Ionicons name="remove" size={18} color="#4A90E2" />
+        </TouchableOpacity>
+        <Text style={styles.itemQty}>{item.quantity}</Text>
+        <TouchableOpacity onPress={() => handleQuantityChange(item.id, 1)} style={styles.qtyBtn}>
+          <Ionicons name="add" size={18} color="#4A90E2" />
+        </TouchableOpacity>
       </View>
       <TouchableOpacity onPress={() => handleRemove(item.id)} style={styles.removeBtn}>
         <Ionicons name="trash" size={20} color="#F44336" />
@@ -74,25 +105,25 @@ const MainShoppingScreen: React.FC = () => {
       {/* Top Bar */}
       <View style={styles.topBar}>
         <View style={styles.budgetBlock}>
-          <Text style={styles.label}>Current Budget</Text>
+          <Text style={styles.label}>Budget</Text>
           <Text style={styles.value}>${budget.toFixed(2)}</Text>
         </View>
         <View style={styles.budgetBlock}>
-          <Text style={styles.label}>Remaining Budget</Text>
+          <Text style={styles.label}>{remaining < 0 ? 'Over Budget' : 'Remaining'}</Text>
           <Text style={[styles.remaining, { color: budgetColor }]}>
-            ${remaining.toFixed(2)}
+            {remaining < 0 ? '-' : ''}${Math.abs(remaining).toFixed(2)}
           </Text>
         </View>
         <View style={styles.budgetBlock}>
-          <Text style={styles.label}>Current Total</Text>
+          <Text style={styles.label}>Total</Text>
           <Text style={styles.value}>${total.toFixed(2)}</Text>
         </View>
       </View>
+
       {/* Shopping List Area */}
       <FlatList
         data={items.map(item => ({
           id: item.product.id,
-          // name: item.product.name,
           description: item.product.description,
           price: item.product.price,
           quantity: item.quantity,
@@ -101,7 +132,74 @@ const MainShoppingScreen: React.FC = () => {
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         style={styles.list}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Ionicons name="cart-outline" size={64} color="#ccc" />
+            <Text style={styles.emptyTitle}>
+              {budget > 0 ? 'No items yet' : 'No active shopping trip'}
+            </Text>
+            <Text style={styles.emptySubtitle}>
+              {budget > 0
+                ? 'Go back to scan items and add them to your list'
+                : 'Start a new trip from the Home tab to set a budget and scan items'}
+            </Text>
+          </View>
+        }
       />
+
+      {/* Bottom Action Buttons */}
+      {budget > 0 && (
+        <View style={styles.bottomActions}>
+          {tripFinished ? (
+            <TouchableOpacity
+              style={styles.newTripBtn}
+              onPress={() => {
+                setItems([]);
+                setShownMilestones([]);
+                navigation.setParams({ items: [], budget: 0, zipCode: '' } as any);
+                navigation.getParent()?.navigate('HomeTab');
+              }}
+            >
+              <Ionicons name="add-circle" size={20} color="#4A90E2" />
+              <Text style={styles.scanMoreText}>Start New Trip</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.scanMoreBtn}
+              onPress={() => navigation.navigate('ScanView', { budget, zipCode, existingItems: items })}
+            >
+              <Ionicons name="scan" size={20} color="#4A90E2" />
+              <Text style={styles.scanMoreText}>Scan More</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={[styles.finishBtn, (items.length === 0 || tripFinished) && styles.finishBtnDisabled]}
+            onPress={async () => {
+              if (items.length === 0 || tripFinished) return;
+              setTripFinished(true);
+              const now = new Date();
+              const trip = {
+                id: now.getTime().toString(),
+                budget,
+                spent: total,
+                remaining,
+                items,
+                createdAt: now,
+                completedAt: now,
+              };
+              await saveTrip(trip);
+              setItems([]);
+              setTripFinished(false);
+              navigation.setParams({ items: [] } as any);
+              navigation.getParent()?.navigate('RecentTripsTab');
+            }}
+            disabled={items.length === 0 || tripFinished}
+          >
+            <Ionicons name="checkmark-circle" size={20} color="white" />
+            <Text style={styles.finishText}>Finish Trip</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -117,9 +215,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#0F172A',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#1E3A5F',
   },
   budgetBlock: {
     alignItems: 'center',
@@ -127,12 +225,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#888',
+    color: 'rgba(255,255,255,0.7)',
   },
   value: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#ffffff',
   },
   remaining: {
     fontSize: 24,
@@ -143,7 +241,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
   itemContainer: {
     flexDirection: 'row',
@@ -177,14 +275,99 @@ const styles = StyleSheet.create({
   },
   itemQty: {
     fontSize: 16,
-    flex: 1,
-    color: '#666',
-    textAlign: 'right',
-    marginLeft: 8,
+    fontWeight: '600',
+    color: '#333',
+    minWidth: 24,
+    textAlign: 'center',
+  },
+  qtyControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 8,
+  },
+  qtyBtn: {
+    padding: 6,
+    borderRadius: 6,
+    backgroundColor: '#D1FAE5',
   },
   removeBtn: {
     marginLeft: 16,
     padding: 4,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 80,
+    paddingHorizontal: 32,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#555',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 8,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  bottomActions: {
+    flexDirection: 'row',
+    padding: 16,
+    paddingBottom: 24,
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
+  },
+  scanMoreBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#10B981',
+    gap: 8,
+  },
+  newTripBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#10B981',
+    gap: 8,
+  },
+  scanMoreText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#10B981',
+  },
+  finishBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: '#10B981',
+    gap: 8,
+  },
+  finishBtnDisabled: {
+    backgroundColor: '#aaa',
+  },
+  finishText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
   },
 });
 

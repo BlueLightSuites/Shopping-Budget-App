@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Product } from '../types';
+import { Product } from '../../types';
 
 interface ItemConfirmationModalProps {
   visible: boolean;
@@ -27,6 +27,12 @@ export default function ItemConfirmationModal({
   onDismiss,
 }: ItemConfirmationModalProps) {
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    if (visible) {
+      setQuantity(1);
+    }
+  }, [visible]);
 
   const handleQuantityChange = (text: string) => {
     const newQuantity = parseInt(text) || 1;

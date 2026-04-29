@@ -15,7 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
-import { AdBanner } from '../components/AdBanner';
+import { AdBanner } from '../components/AdBanner/AdBanner';
+import { useBiometric } from '../contexts/BiometricContext';
 
 type SettingsNavigationProp = StackNavigationProp<RootStackParamList, 'Settings'>;
 
@@ -23,7 +24,7 @@ const SettingsScreen = () => {
   const navigation = useNavigation<SettingsNavigationProp>();
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
-  const [biometrics, setBiometrics] = useState(false);
+  const { biometricEnabled, isSupported, toggleBiometric } = useBiometric();
 
   const handleLogout = () => {
     Alert.alert(
@@ -76,7 +77,7 @@ const SettingsScreen = () => {
   }) => (
     <TouchableOpacity style={styles.settingItem} onPress={onPress}>
       <View style={styles.settingContent}>
-        <Ionicons name={icon as any} size={24} color="#4A90E2" />
+        <Ionicons name={icon as any} size={24} color="#10B981" />
         <View style={styles.settingText}>
           <Text style={styles.settingTitle}>{title}</Text>
           {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
@@ -101,7 +102,7 @@ const SettingsScreen = () => {
   }) => (
     <View style={styles.settingItem}>
       <View style={styles.settingContent}>
-        <Ionicons name={icon as any} size={24} color="#4A90E2" />
+        <Ionicons name={icon as any} size={24} color="#10B981" />
         <View style={styles.settingText}>
           <Text style={styles.settingTitle}>{title}</Text>
           {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
@@ -110,16 +111,16 @@ const SettingsScreen = () => {
       <Switch
         value={value}
         onValueChange={onToggle}
-        trackColor={{ false: '#E0E0E0', true: '#81C784' }}
-        thumbColor={value ? '#4CAF50' : '#FFF'}
+        trackColor={{ false: '#E2E8F0', true: '#6EE7B7' }}
+        thumbColor={value ? '#10B981' : '#FFF'}
       />
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4A90E2" />
-      <LinearGradient colors={['#4A90E2', '#357ABD']} style={styles.gradient}>
+      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -184,9 +185,9 @@ const SettingsScreen = () => {
               <ToggleSetting
                 icon="finger-print"
                 title="Biometric Login"
-                subtitle="Use fingerprint or face ID"
-                value={biometrics}
-                onToggle={setBiometrics}
+                subtitle={isSupported ? 'Use Face ID or Touch ID to unlock' : 'Not available on this device'}
+                value={biometricEnabled}
+                onToggle={toggleBiometric}
               />
             </View>
           </View>
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 16,
     paddingVertical: 20,
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
   section: {
     marginBottom: 24,

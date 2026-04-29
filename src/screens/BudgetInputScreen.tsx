@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
-import { AdBanner } from '../components/AdBanner';
+import { AdBanner } from '../components/AdBanner/AdBanner';
 
 type BudgetInputScreenNavigationProp = StackNavigationProp<RootStackParamList, 'BudgetInput'>;
 
@@ -27,52 +27,27 @@ export default function BudgetInputScreen() {
   const [currencySymbol, setCurrencySymbol] = useState('$');
 
   useEffect(() => {
-    // Get local currency symbol (simplified - in real app, use a proper currency library)
     const locale = Intl.DateTimeFormat().resolvedOptions().locale;
-    if (locale.includes('en')) {
-      setCurrencySymbol('$');
-    } else if (locale.includes('eu')) {
-      setCurrencySymbol('€');
-    } else if (locale.includes('gb')) {
-      setCurrencySymbol('£');
-    }
+    if (locale.includes('en')) setCurrencySymbol('$');
+    else if (locale.includes('eu')) setCurrencySymbol('€');
+    else if (locale.includes('gb')) setCurrencySymbol('£');
   }, []);
 
   const handleBudgetChange = (text: string) => {
-    // Remove any non-numeric characters except decimal point
     const cleaned = text.replace(/[^0-9.]/g, '');
-    
-    // Ensure only one decimal point
     const parts = cleaned.split('.');
-    if (parts.length > 2) {
-      return;
-    }
-    
-    // Limit to 2 decimal places
-    if (parts.length === 2 && parts[1].length > 2) {
-      return;
-    }
-    
+    if (parts.length > 2) return;
+    if (parts.length === 2 && parts[1].length > 2) return;
     setBudget(cleaned);
   };
 
   const handleChooseStore = () => {
     const budgetAmount = parseFloat(budget);
-    
     if (isNaN(budgetAmount) || budgetAmount <= 0) {
       Alert.alert('Invalid Budget', 'Please enter a valid budget amount.');
       return;
     }
-
-    // if (budgetAmount > 10000) {
-    //   Alert.alert('High Budget', 'Are you sure you want to set such a high budget?', [
-    //     { text: 'Cancel', style: 'cancel' },
-    //     // { text: 'Continue', onPress: () => navigation.navigate('ScanView', { budget: budgetAmount }) },
-    //   ]);
-    //   return;
-    // }
-
-    navigation.navigate('StoreSelector', {budget: budgetAmount });
+    navigation.navigate('StoreSelector', { budget: budgetAmount });
   };
 
   const handleQuickBudget = (amount: number) => {
@@ -81,105 +56,92 @@ export default function BudgetInputScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#4A90E2" />
-      
-      <LinearGradient
-        colors={['#4A90E2', '#357ABD']}
-        style={styles.gradient}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="white" />
-          </TouchableOpacity>
+      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+
+      {/* Dark navy header */}
+      <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+        <View style={styles.headerCenter}>
+          <Ionicons name="wallet-outline" size={30} color="white" />
           <Text style={styles.headerTitle}>Set Your Budget</Text>
-          <View style={styles.placeholder} />
+          <Text style={styles.headerSubtitle}>How much do you want to spend?</Text>
         </View>
-
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.content}
-        >
-          <ScrollView 
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Main Content */}
-            <View style={styles.mainContent}>
-              <View style={styles.iconContainer}>
-                <Ionicons name="wallet" size={48} color="white" />
-              </View>
-              
-              <Text style={styles.title}>Set Your Budget for This Trip</Text>
-              <Text style={styles.subtitle}>
-                Enter the amount you want to spend on this shopping trip
-              </Text>
-
-              {/* Budget Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.currencySymbol}>{currencySymbol}</Text>
-                <TextInput
-                  style={styles.budgetInput}
-                  value={budget}
-                  onChangeText={handleBudgetChange}
-                  keyboardType="decimal-pad"
-                  placeholder="0.00"
-                  placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                  autoFocus
-                  selectTextOnFocus
-                />
-              </View>
-
-              {/* Quick Budget Options */}
-              <View style={styles.quickBudgetContainer}>
-                <Text style={styles.quickBudgetTitle}>Quick Budget Options:</Text>
-                <View style={styles.quickBudgetButtons}>
-                  <TouchableOpacity
-                    style={styles.quickBudgetButton}
-                    onPress={() => handleQuickBudget(50)}
-                  >
-                    <Text style={styles.quickBudgetText}>{currencySymbol}50</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.quickBudgetButton}
-                    onPress={() => handleQuickBudget(100)}
-                  >
-                    <Text style={styles.quickBudgetText}>{currencySymbol}100</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.quickBudgetButton}
-                    onPress={() => handleQuickBudget(200)}
-                  >
-                    <Text style={styles.quickBudgetText}>{currencySymbol}200</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Ad Banner - Before Confirm Button */}
-              <AdBanner size="medium" style={{ marginVertical: 16 }} />
-
-              {/* Start Scanning Button */}
-              <TouchableOpacity
-                style={styles.startButton}
-                onPress={handleChooseStore}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={['#FF6B6B', '#FF8E53']}
-                  style={styles.buttonGradient}
-                >
-                  <Ionicons name="storefront" size={24} color="white" />
-                  <Text style={styles.buttonText}>Choose Store</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+        <View style={styles.placeholder} />
       </LinearGradient>
+
+      {/* Light content area */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Budget input card */}
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>ENTER AMOUNT</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.currencySymbol}>{currencySymbol}</Text>
+              <TextInput
+                style={styles.budgetInput}
+                value={budget}
+                onChangeText={handleBudgetChange}
+                keyboardType="decimal-pad"
+                placeholder="0.00"
+                placeholderTextColor="#CBD5E1"
+                autoFocus
+                selectTextOnFocus
+              />
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Quick options */}
+            <Text style={styles.quickLabel}>Quick Options</Text>
+            <View style={styles.quickBudgetButtons}>
+              {[50, 75, 100, 150, 200, 250].map((amount) => (
+                <TouchableOpacity
+                  key={amount}
+                  style={[
+                    styles.quickBudgetButton,
+                    parseFloat(budget) === amount && styles.quickBudgetButtonActive,
+                  ]}
+                  onPress={() => handleQuickBudget(amount)}
+                >
+                  <Text
+                    style={[
+                      styles.quickBudgetText,
+                      parseFloat(budget) === amount && styles.quickBudgetTextActive,
+                    ]}
+                  >
+                    {currencySymbol}{amount}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Ad Banner */}
+          <AdBanner size="medium" style={{ marginBottom: 20 }} />
+
+          {/* CTA */}
+          <TouchableOpacity
+            style={styles.startButton}
+            onPress={handleChooseStore}
+            activeOpacity={0.85}
+          >
+            <LinearGradient colors={['#10B981', '#059669']} style={styles.buttonGradient}>
+              <Ionicons name="storefront" size={22} color="white" />
+              <Text style={styles.buttonText}>Choose Store</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -187,137 +149,144 @@ export default function BudgetInputScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradient: {
-    flex: 1,
+    backgroundColor: '#F1F5F9',
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 30,
+    paddingBottom: 32,
   },
   backButton: {
-    padding: 8,
+    padding: 4,
+    marginTop: 2,
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 6,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  placeholder: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingVertical: 20,
-  },
-  mainContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-  },
-  iconContainer: {
-    marginBottom: 30,
-  },
-  title: {
     fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
-    textAlign: 'center',
-    marginBottom: 10,
+    marginTop: 8,
   },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    marginBottom: 40,
-    paddingHorizontal: 20,
+  headerSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.75)',
+  },
+  placeholder: {
+    width: 32,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 40,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  cardLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#94A3B8',
+    letterSpacing: 0.8,
+    marginBottom: 16,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
+    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    marginBottom: 30,
-    width: '100%',
-    maxWidth: 280,
+    paddingVertical: 18,
+    borderWidth: 2,
+    borderColor: '#10B981',
   },
   currencySymbol: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginRight: 10,
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginRight: 6,
   },
   budgetInput: {
-    flex: 1,
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    fontSize: 36,
+    fontWeight: '700',
+    color: '#1E293B',
+    minWidth: 120,
     textAlign: 'center',
   },
-  quickBudgetContainer: {
-    marginBottom: 40,
-    alignItems: 'center',
+  divider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginVertical: 20,
   },
-  quickBudgetTitle: {
-    fontSize: 16,
-    color: 'white',
-    marginBottom: 15,
+  quickLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+    marginBottom: 12,
   },
   quickBudgetButtons: {
     flexDirection: 'row',
-    justifyContent: 'center',
     flexWrap: 'wrap',
+    gap: 10,
   },
   quickBudgetButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginHorizontal: 5,
-    marginBottom: 10,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  quickBudgetButtonActive: {
+    backgroundColor: '#D1FAE5',
+    borderColor: '#10B981',
   },
   quickBudgetText: {
-    color: 'white',
     fontSize: 14,
     fontWeight: '600',
+    color: '#475569',
+  },
+  quickBudgetTextActive: {
+    color: '#059669',
   },
   startButton: {
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+    borderRadius: 16,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
+    justifyContent: 'center',
+    paddingVertical: 18,
+    borderRadius: 16,
+    gap: 10,
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: 'bold',
     color: 'white',
-    marginLeft: 10,
   },
-}); 
+});

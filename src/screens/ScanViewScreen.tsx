@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,14 +13,14 @@ import {
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useToast } from 'react-native-toast-notifications';
 import { RootStackParamList, CartItem } from '../types';
 import { apiService } from '../services/api';
 
-import ItemConfirmationModal from '../components/ItemConfirmationModal';
-import UnrecognizedBarcodeModal from '../components/UnrecognizedBarcodeModal';
+import ItemConfirmationModal from '../components/ItemConfirmationModal/ItemConfirmationModal';
+import UnrecognizedBarcodeModal from '../components/UnrecognizedBarcodeModal/UnrecognizedBarcodeModal';
 
 type ScanViewScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ScanView'>;
 type ScanViewScreenRouteProp = RouteProp<RootStackParamList, 'ScanView'>;
@@ -32,8 +32,21 @@ export default function ScanViewScreen() {
   const route = useRoute<ScanViewScreenRouteProp>();
   const toast = useToast();
 
-  const { budget, zipCode } = route.params;
-  const [items, setItems] = useState<CartItem[]>([]); // Shopping list state
+  const { budget, zipCode, existingItems = [] } = route.params;
+  const [items, setItems] = useState<CartItem[]>(existingItems); // Shopping list state
+
+  // Sync items when returning from MainShoppingScreen (e.g. after a deletion)
+  useFocusEffect(
+    React.useCallback(() => {
+      setItems(route.params.existingItems ?? []);
+    }, [route.params.existingItems])
+  );
+
+  const cartTotal = useMemo(
+    () => items.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+    [items]
+  );
+  const remaining = budget - cartTotal;
 
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -85,7 +98,6 @@ export default function ScanViewScreen() {
       if (result.success && result.product) {
         setScannedProduct(result.product);
         setShowItemModal(true);
-        toast.show('Product found!', { type: 'success', duration: 2000 });
       } else {
         toast.show('Product not found. Please enter manually.', { 
           type: 'warning', 
@@ -172,7 +184,7 @@ export default function ScanViewScreen() {
 
   // Navigate to MainShoppingScreen with budget and items
   const handleGoToMainShopping = () => {
-    navigation.navigate('MainShopping', { budget, items });
+    navigation.navigate('MainShopping', { budget, zipCode, items });
   };
 
   const handleUnrecognizedDismissed = () => {
@@ -220,6 +232,7 @@ export default function ScanViewScreen() {
         style={styles.camera}
         facing={facing}
         flash={flash}
+        enableTorch={flash === 'on'}
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{
           barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e'],
@@ -271,8 +284,7 @@ export default function ScanViewScreen() {
             )}
             
             <Text style={styles.budgetText}>
-             {/** TODO - display the remaining total from the shopping cart */}
-              Budget: ${budget.toFixed(2)}
+              Remaining: ${remaining.toFixed(2)}
             </Text>
             {items.length > 0 && (
               <Text style={styles.itemsCountText}>
@@ -290,14 +302,15 @@ export default function ScanViewScreen() {
               <Ionicons name="create" size={20} color="white" />
               <Text style={styles.manualButtonText}>Manual Entry</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.manualButton, { marginTop: 12, backgroundColor: '#4CAF50' }]}
-              onPress={handleGoToMainShopping}
-              disabled={items.length === 0}
-            >
-              <Ionicons name="cart" size={20} color="white" />
-              <Text style={styles.manualButtonText}>View Shopping List</Text>
-            </TouchableOpacity>
+            {items.length > 0 && (
+              <TouchableOpacity
+                style={[styles.manualButton, { marginTop: 12, backgroundColor: '#4CAF50' }]}
+                onPress={handleGoToMainShopping}
+              >
+                <Ionicons name="cart" size={20} color="white" />
+                <Text style={styles.manualButtonText}>View Shopping List</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </CameraView>
@@ -369,7 +382,7 @@ const styles = StyleSheet.create({
     height: 30,
     borderTopWidth: 3,
     borderLeftWidth: 3,
-    borderColor: '#4A90E2',
+    borderColor: '#10B981',
   },
   cornerTR: {
     position: 'absolute',
@@ -379,7 +392,7 @@ const styles = StyleSheet.create({
     height: 30,
     borderTopWidth: 3,
     borderRightWidth: 3,
-    borderColor: '#4A90E2',
+    borderColor: '#10B981',
   },
   cornerBL: {
     position: 'absolute',
@@ -389,7 +402,7 @@ const styles = StyleSheet.create({
     height: 30,
     borderBottomWidth: 3,
     borderLeftWidth: 3,
-    borderColor: '#4A90E2',
+    borderColor: '#10B981',
   },
   cornerBR: {
     position: 'absolute',
@@ -399,7 +412,7 @@ const styles = StyleSheet.create({
     height: 30,
     borderBottomWidth: 3,
     borderRightWidth: 3,
-    borderColor: '#4A90E2',
+    borderColor: '#10B981',
   },
   instructions: {
     position: 'absolute',
@@ -446,7 +459,7 @@ const styles = StyleSheet.create({
     marginTop: 100,
   },
   permissionButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#10B981',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,

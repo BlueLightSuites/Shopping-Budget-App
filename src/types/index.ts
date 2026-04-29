@@ -41,8 +41,8 @@ export interface BudgetSettings {
 export type RootStackParamList = {
   Home: undefined;
   BudgetInput: undefined;
-  ScanView: { budget: number, zipCode: string };
-  MainShopping: { budget: number; items: CartItem[] };
+  ScanView: { budget: number; zipCode: string; existingItems?: CartItem[] };
+  MainShopping: { budget: number; zipCode: string; items: CartItem[] };
   Cart: { tripId: string };
   Settings: undefined;
   RecentTrips: undefined;

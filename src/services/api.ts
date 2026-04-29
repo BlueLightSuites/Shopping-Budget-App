@@ -56,6 +56,7 @@ class ApiService {
       this.api.defaults.headers.common['Authorization'] = `Bearer ${this.bearerToken}`;
     } catch (error) {
       console.error('Error fetching OAuth token:', error);
+      throw error;
     }
   }
 
@@ -104,6 +105,10 @@ class ApiService {
     locationId?: string | null
   ): Promise<ScanResult> {
     try {
+      if (!this.isTokenValid()) {
+        await this.getOauthToken();
+      }
+
       const krogerResponse = await this.api.get(
         `products/${barcode}?filter.locationId=${locationId || ''}`
       );
