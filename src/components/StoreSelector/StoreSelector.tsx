@@ -33,7 +33,7 @@ const stores: { id: number; name: string; storeId: StoreId }[] = [
 
 const StoreSelector = () => {
   const route = useRoute<StoreSelectorScreenRouteProp>();
-  const { budget } = route.params;
+  const { budget, existingItems = [], visitedStores = [] } = route.params;
   const navigation = useNavigation<StoreLocatorNavigationProp>();
   const [selectedStore, setSelectedStore] = useState<number | null>(null);
   const [zipCode, setZipCode] = useState('');
@@ -49,7 +49,13 @@ const StoreSelector = () => {
       console.log(`Selected Store: ${selected.storeId}, Zip Code: ${zipCode}`);
       (navigation as any).navigate('ShoppingTab', {
         screen: 'ScanView',
-        params: { budget, zipCode, store: selected.storeId },
+        params: {
+          budget,
+          zipCode,
+          store: selected.storeId,
+          existingItems,
+          visitedStores,
+        },
       });
     } else {
       alert('Please enter a valid zip code.');

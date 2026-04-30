@@ -33,7 +33,7 @@ export default function ScanViewScreen() {
   const route = useRoute<ScanViewScreenRouteProp>();
   const toast = useToast();
 
-  const { budget, zipCode, store, existingItems = [] } = route.params;
+  const { budget, zipCode, store, existingItems = [], visitedStores = [] } = route.params;
   const [items, setItems] = useState<CartItem[]>(existingItems); // Shopping list state
 
   // Sync items when returning from MainShoppingScreen (e.g. after a deletion)
@@ -163,6 +163,7 @@ export default function ScanViewScreen() {
           product: scannedProduct,
           quantity,
           totalPrice: scannedProduct.price * quantity,
+          storeId: store,
         },
       ]);
     }
@@ -201,6 +202,7 @@ export default function ScanViewScreen() {
         product: manualProduct,
         quantity,
         totalPrice: price * quantity,
+        storeId: store,
       },
     ]);
     // Reset scanned state after a short delay to allow scanning again
@@ -212,7 +214,8 @@ export default function ScanViewScreen() {
 
   // Navigate to MainShoppingScreen with budget and items
   const handleGoToMainShopping = () => {
-    navigation.navigate('MainShopping', { budget, zipCode, store, items });
+    const updatedStores = Array.from(new Set([...visitedStores, store])) as typeof visitedStores;
+    navigation.navigate('MainShopping', { budget, zipCode, store, stores: updatedStores, items });
   };
 
   const handleUnrecognizedDismissed = () => {

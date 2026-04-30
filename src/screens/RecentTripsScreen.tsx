@@ -90,6 +90,20 @@ const RecentTripsScreen = () => {
           <View style={styles.tripInfo}>
             <Text style={styles.tripDate}>{formatDate(item.createdAt)}</Text>
             <Text style={styles.tripBudget}>Budget: ${item.budget.toFixed(2)}</Text>
+            {item.stores && item.stores.length > 0 && (
+              <View style={styles.storeChips}>
+                {Array.from(new Set(item.stores)).map((s) => (
+                  <View
+                    key={s}
+                    style={[styles.storeChip, { backgroundColor: s === 'walmart' ? '#0071CE' : '#E31837' }]}
+                  >
+                    <Text style={styles.storeChipText}>
+                      {s === 'walmart' ? 'Walmart' : "Smith's"}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
           </View>
           <Ionicons name="chevron-forward" size={20} color="#10B981" />
         </View>
@@ -333,6 +347,23 @@ const styles = StyleSheet.create({
   footerLoaderText: {
     fontSize: 13,
     color: '#64748B',
+  },
+  storeChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    marginTop: 6,
+  },
+  storeChip: {
+    borderRadius: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+  },
+  storeChipText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: 'white',
+    letterSpacing: 0.3,
   },
 });
 

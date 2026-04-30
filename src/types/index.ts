@@ -13,6 +13,7 @@ export interface CartItem {
   product: Product;
   quantity: number;
   totalPrice: number;
+  storeId?: StoreId; // which store this item was scanned at
 }
 
 export interface ShoppingTrip {
@@ -21,6 +22,7 @@ export interface ShoppingTrip {
   spent: number;
   remaining: number;
   items: CartItem[];
+  stores?: StoreId[]; // all stores visited in this trip
   createdAt: Date;
   completedAt?: Date;
 }
@@ -43,10 +45,10 @@ export type StoreId = 'kroger' | 'walmart';
 export type RootStackParamList = {
   Home: undefined;
   BudgetInput: undefined;
-  ScanView: { budget: number; zipCode: string; store: StoreId; existingItems?: CartItem[] };
-  MainShopping: { budget: number; zipCode: string; store: StoreId; items: CartItem[] };
+  ScanView: { budget: number; zipCode: string; store: StoreId; existingItems?: CartItem[]; visitedStores?: StoreId[] };
+  MainShopping: { budget: number; zipCode: string; store: StoreId; stores?: StoreId[]; items: CartItem[] };
   Cart: { tripId: string };
   Settings: undefined;
   RecentTrips: undefined;
-  StoreSelector: { locationId?: string, budget: number  };
+  StoreSelector: { locationId?: string; budget: number; existingItems?: CartItem[]; visitedStores?: StoreId[] };
 };

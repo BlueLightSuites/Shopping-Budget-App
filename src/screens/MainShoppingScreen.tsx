@@ -5,7 +5,7 @@ import { useToast } from 'react-native-toast-notifications';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList, CartItem } from '../types';
+import { RootStackParamList, CartItem, StoreId } from '../types';
 import { saveTrip } from '../utilities/tripStorage';
 
 // ShoppingItem type for local use
@@ -15,6 +15,7 @@ type ShoppingItem = {
   price: number;
   quantity: number;
   description: string;
+  storeId?: StoreId;
 };
 type MainShoppingScreenRouteProp = RouteProp<RootStackParamList, 'MainShopping'>;
 type MainShoppingScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MainShopping'>;
@@ -25,8 +26,11 @@ const BUDGET_MILESTONES = [0.75, 1];
 const MainShoppingScreen: React.FC = () => {
   const route = useRoute<MainShoppingScreenRouteProp>();
   const navigation = useNavigation<MainShoppingScreenNavigationProp>();
-  const { budget = 0, zipCode = '', store, items: initialItems = [] } = route.params ?? {};
+  const { budget = 0, zipCode = '', store, stores: initialStores, items: initialItems = [] } = route.params ?? {};
   const [items, setItems] = useState(initialItems);
+  const [stores, setStores] = useState<StoreId[]>(
+    initialStores ?? (store ? [store] : [])
+  );
   const [shownMilestones, setShownMilestones] = useState<number[]>([]);
   const [tripFinished, setTripFinished] = useState(false);
 
@@ -36,6 +40,13 @@ const MainShoppingScreen: React.FC = () => {
       setItems(initialItems);
     }
   }, [initialItems]);
+
+  // Sync stores when route params are updated
+  useEffect(() => {
+    if (initialStores && initialStores.length > 0) {
+      setStores(initialStores);
+    }
+  }, [initialStores]);
   const toast = useToast();
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.product.price * item.quantity, 0), [items]);
@@ -79,26 +90,41 @@ const MainShoppingScreen: React.FC = () => {
     );
   };
 
-  const renderItem = ({ item }: { item: ShoppingItem }) => (
-    <View style={styles.itemContainer}>
-      <View style={styles.itemInfo}>
-        <Text style={styles.itemName}>{item.description}</Text>
-        <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
-      </View>
-      <View style={styles.qtyControls}>
-        <TouchableOpacity onPress={() => handleQuantityChange(item.id, -1)} style={styles.qtyBtn}>
-          <Ionicons name="remove" size={18} color="#4A90E2" />
+  const STORE_LABELS: Record<StoreId, { label: string; color: string }> = {
+    walmart: { label: 'WMT', color: '#0071CE' },
+    kroger: { label: "SMT'S", color: '#E31837' },
+  };
+
+  const renderItem = ({ item }: { item: ShoppingItem }) => {
+    const storeMeta = item.storeId ? STORE_LABELS[item.storeId] : null;
+    return (
+      <View style={styles.itemContainer}>
+        <View style={styles.itemInfo}>
+          <View style={{ flex: 2 }}>
+            <Text style={styles.itemName}>{item.description}</Text>
+            {storeMeta && (
+              <View style={[styles.storeBadge, { backgroundColor: storeMeta.color }]}>
+                <Text style={styles.storeBadgeText}>{storeMeta.label}</Text>
+              </View>
+            )}
+          </View>
+          <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+        </View>
+        <View style={styles.qtyControls}>
+          <TouchableOpacity onPress={() => handleQuantityChange(item.id, -1)} style={styles.qtyBtn}>
+            <Ionicons name="remove" size={18} color="#4A90E2" />
+          </TouchableOpacity>
+          <Text style={styles.itemQty}>{item.quantity}</Text>
+          <TouchableOpacity onPress={() => handleQuantityChange(item.id, 1)} style={styles.qtyBtn}>
+            <Ionicons name="add" size={18} color="#4A90E2" />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={() => handleRemove(item.id)} style={styles.removeBtn}>
+          <Ionicons name="trash" size={20} color="#F44336" />
         </TouchableOpacity>
-        <Text style={styles.itemQty}>{item.quantity}</Text>
-        <TouchableOpacity onPress={() => handleQuantityChange(item.id, 1)} style={styles.qtyBtn}>
-          <Ionicons name="add" size={18} color="#4A90E2" />
-        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => handleRemove(item.id)} style={styles.removeBtn}>
-        <Ionicons name="trash" size={20} color="#F44336" />
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -127,6 +153,7 @@ const MainShoppingScreen: React.FC = () => {
           description: item.product.name ?? item.product.description,
           price: item.product.price,
           quantity: item.quantity,
+          storeId: item.storeId,
         }))}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
@@ -152,7 +179,7 @@ const MainShoppingScreen: React.FC = () => {
         <View style={styles.bottomActions}>
           {tripFinished ? (
             <TouchableOpacity
-              style={styles.newTripBtn}
+              style={[styles.actionBtn, styles.actionBtnOutline]}
               onPress={() => {
                 setItems([]);
                 setShownMilestones([]);
@@ -160,17 +187,38 @@ const MainShoppingScreen: React.FC = () => {
                 navigation.getParent()?.navigate('HomeTab');
               }}
             >
-              <Ionicons name="add-circle" size={20} color="#4A90E2" />
-              <Text style={styles.scanMoreText}>Start New Trip</Text>
+              <Ionicons name="add-circle" size={20} color="#10B981" />
+              <Text style={styles.actionBtnOutlineText}>Start New Trip</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity
-              style={styles.scanMoreBtn}
-              onPress={() => navigation.navigate('ScanView', { budget, zipCode, store, existingItems: items })}
-            >
-              <Ionicons name="scan" size={20} color="#4A90E2" />
-              <Text style={styles.scanMoreText}>Scan More</Text>
-            </TouchableOpacity>
+            <View style={styles.topRow}>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.actionBtnOutline]}
+                onPress={() => navigation.navigate('ScanView', {
+                  budget,
+                  zipCode,
+                  store,
+                  existingItems: items,
+                  visitedStores: stores,
+                })}
+              >
+                <Ionicons name="scan" size={18} color="#10B981" />
+                <Text style={styles.actionBtnOutlineText}>Scan More</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.addStoreBtn]}
+                onPress={() =>
+                  (navigation as any).navigate('StoreSelector', {
+                    budget,
+                    existingItems: items,
+                    visitedStores: stores,
+                  })
+                }
+              >
+                <Ionicons name="storefront-outline" size={18} color="#7C3AED" />
+                <Text style={styles.addStoreBtnText}>Add Store</Text>
+              </TouchableOpacity>
+            </View>
           )}
           <TouchableOpacity
             style={[styles.finishBtn, (items.length === 0 || tripFinished) && styles.finishBtnDisabled]}
@@ -184,6 +232,7 @@ const MainShoppingScreen: React.FC = () => {
                 spent: total,
                 remaining,
                 items,
+                stores: Array.from(new Set(stores)) as StoreId[],
                 createdAt: now,
                 completedAt: now,
               };
@@ -316,43 +365,59 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   bottomActions: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     padding: 16,
     paddingBottom: 24,
-    gap: 12,
+    gap: 10,
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     backgroundColor: '#F8FAFC',
   },
-  scanMoreBtn: {
+  topRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  actionBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 12,
+    gap: 6,
+  },
+  actionBtnOutline: {
     borderWidth: 2,
     borderColor: '#10B981',
-    gap: 8,
   },
-  newTripBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#10B981',
-    gap: 8,
-  },
-  scanMoreText: {
-    fontSize: 16,
+  actionBtnOutlineText: {
+    fontSize: 14,
     fontWeight: '600',
     color: '#10B981',
   },
+  addStoreBtn: {
+    borderWidth: 2,
+    borderColor: '#7C3AED',
+  },
+  addStoreBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#7C3AED',
+  },
+  storeBadge: {
+    alignSelf: 'flex-start',
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    marginTop: 4,
+  },
+  storeBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: 'white',
+    letterSpacing: 0.4,
+  },
   finishBtn: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
