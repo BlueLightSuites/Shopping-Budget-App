@@ -128,11 +128,16 @@ class WalmartApiService {
       };
     } catch (error) {
       const axiosError = error as AxiosError<ApiError>;
-      console.error('Walmart barcode search error:', axiosError.response?.data || axiosError.message);
+      const statusCode = axiosError.response?.status;
+      if (statusCode === 401 || statusCode === 403) {
+        console.log('Walmart API auth error — check WALMART_CONSUMER_ID and key config:', axiosError.response?.data);
+      } else {
+        console.log('Walmart barcode lookup failed (handled):', axiosError.message);
+      }
       return {
         success: false,
         barcode,
-        error: axiosError.response?.data?.error || 'Network error or product not found',
+        error: 'Product not found',
       };
     }
   }

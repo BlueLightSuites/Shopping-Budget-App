@@ -8,18 +8,21 @@ import {
   StatusBar,
   FlatList,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
-import { ShoppingTrip } from '../types';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { ShoppingTrip, RootStackParamList } from '../types';
 import { AdBanner } from '../components/AdBanner/AdBanner';
 import { loadTrips } from '../utilities/tripStorage';
+
+type RecentTripsNavigationProp = StackNavigationProp<RootStackParamList, 'RecentTrips'>;
 
 const PAGE_SIZE = 10;
 
 const RecentTripsScreen = () => {
+  const navigation = useNavigation<RecentTripsNavigationProp>();
   const [trips, setTrips] = useState<ShoppingTrip[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -81,9 +84,7 @@ const RecentTripsScreen = () => {
     <View key={item.id}>
       <TouchableOpacity
         style={styles.tripCard}
-        onPress={() => {
-          Alert.alert('Coming Soon', 'Trip detail view will be available in a future update.');
-        }}
+        onPress={() => navigation.navigate('TripDetail', { tripId: item.id })}
         activeOpacity={0.7}
       >
         <View style={styles.tripHeader}>

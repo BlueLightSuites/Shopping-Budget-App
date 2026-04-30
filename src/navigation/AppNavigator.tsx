@@ -6,11 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../types';
 import HomeScreen from '../screens/HomeScreen';
 import BudgetInputScreen from '../screens/BudgetInputScreen';
+import StoreSelectorScreen from '../components/StoreSelector/StoreSelector';
 import ScanViewScreen from '../screens/ScanViewScreen';
 import MainShoppingScreen from '../screens/MainShoppingScreen';
 import RecentTripsScreen from '../screens/RecentTripsScreen';
+import TripDetailScreen from '../screens/TripDetailScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import StoreSelector from '@/components/StoreSelector/StoreSelector';
 import { BiometricProvider, useBiometric } from '../contexts/BiometricContext';
 import LockScreen from '../screens/LockScreen';
 
@@ -41,7 +42,7 @@ function HomeStack() {
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="BudgetInput" component={BudgetInputScreen} />
-      <Stack.Screen name="StoreSelector" component={StoreSelector} />
+      <Stack.Screen name="StoreSelector" component={StoreSelectorScreen} />
     </Stack.Navigator>
   );
 }
@@ -66,6 +67,11 @@ function RecentTripsStack() {
         name="RecentTrips" 
         component={RecentTripsScreen}
         options={{ title: 'Recent Trips' }}
+      />
+      <Stack.Screen
+        name="TripDetail"
+        component={TripDetailScreen}
+        options={{ title: 'Trip Detail' }}
       />
     </Stack.Navigator>
   );

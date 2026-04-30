@@ -1,7 +1,7 @@
 import { RootStackParamList, StoreId } from '@/types';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,9 +13,12 @@ import {
   StatusBar,
   ScrollView,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AdBanner } from '../AdBanner/AdBanner';
+
+const ZIP_STORAGE_KEY = '@last_zip_code';
 
 /**
  * Logo Credits:
@@ -38,28 +41,39 @@ const StoreSelector = () => {
   const [selectedStore, setSelectedStore] = useState<number | null>(null);
   const [zipCode, setZipCode] = useState('');
 
+  // Restore last used ZIP code
+  useEffect(() => {
+    AsyncStorage.getItem(ZIP_STORAGE_KEY).then((saved) => {
+      if (saved) setZipCode(saved);
+    });
+  }, []);
+
   const handleStoreSelect = (storeId: number) => {
     setSelectedStore(storeId);
   };
 
   const handleConfirm = async () => {
-    if (zipCode.trim()) {
-      const selected = stores.find((s) => s.id === selectedStore);
-      if (!selected) return;
-      console.log(`Selected Store: ${selected.storeId}, Zip Code: ${zipCode}`);
-      (navigation as any).navigate('ShoppingTab', {
-        screen: 'ScanView',
-        params: {
-          budget,
-          zipCode,
-          store: selected.storeId,
-          existingItems,
-          visitedStores,
-        },
-      });
-    } else {
-      alert('Please enter a valid zip code.');
+    if (zipCode.trim().length < 5) {
+      alert('Please enter a valid 5-digit ZIP code.');
+      return;
     }
+    const selected = stores.find((s) => s.id === selectedStore);
+    if (!selected) {
+      alert('Please select a store.');
+      return;
+    }
+    await AsyncStorage.setItem(ZIP_STORAGE_KEY, zipCode.trim());
+    console.log(`Selected Store: ${selected.storeId}, Zip Code: ${zipCode}`);
+    (navigation as any).navigate('ShoppingTab', {
+      screen: 'ScanView',
+      params: {
+        budget,
+        zipCode: zipCode.trim(),
+        store: selected.storeId,
+        existingItems,
+        visitedStores,
+      },
+    });
   };
 
   return (

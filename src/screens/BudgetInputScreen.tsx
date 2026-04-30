@@ -12,6 +12,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -41,7 +42,7 @@ export default function BudgetInputScreen() {
     setBudget(cleaned);
   };
 
-  const handleChooseStore = () => {
+  const handleStartShopping = async () => {
     const budgetAmount = parseFloat(budget);
     if (isNaN(budgetAmount) || budgetAmount <= 0) {
       Alert.alert('Invalid Budget', 'Please enter a valid budget amount.');
@@ -53,6 +54,8 @@ export default function BudgetInputScreen() {
   const handleQuickBudget = (amount: number) => {
     setBudget(amount.toFixed(2));
   };
+
+  const isReady = parseFloat(budget) > 0;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -68,7 +71,6 @@ export default function BudgetInputScreen() {
           <Text style={styles.headerTitle}>Set Your Budget</Text>
           <Text style={styles.headerSubtitle}>How much do you want to spend?</Text>
         </View>
-        <View style={styles.placeholder} />
       </LinearGradient>
 
       {/* Light content area */}
@@ -131,13 +133,17 @@ export default function BudgetInputScreen() {
 
           {/* CTA */}
           <TouchableOpacity
-            style={styles.startButton}
-            onPress={handleChooseStore}
+            style={[styles.startButton, !isReady && styles.startButtonDisabled]}
+            onPress={handleStartShopping}
             activeOpacity={0.85}
+            disabled={!isReady}
           >
-            <LinearGradient colors={['#10B981', '#059669']} style={styles.buttonGradient}>
-              <Ionicons name="storefront" size={22} color="white" />
-              <Text style={styles.buttonText}>Choose Store</Text>
+            <LinearGradient
+              colors={isReady ? ['#10B981', '#059669'] : ['#CBD5E1', '#CBD5E1']}
+              style={styles.buttonGradient}
+            >
+              <Ionicons name="storefront-outline" size={22} color="white" />
+              <Text style={styles.buttonText}>Choose a Store</Text>
             </LinearGradient>
           </TouchableOpacity>
         </ScrollView>
@@ -275,6 +281,33 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 8,
     elevation: 6,
+  },
+  startButtonDisabled: {
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  zipInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderWidth: 2,
+    borderColor: '#64748B',
+    marginBottom: 8,
+  },
+  zipInput: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  zipHint: {
+    fontSize: 12,
+    color: '#94A3B8',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   buttonGradient: {
     flexDirection: 'row',

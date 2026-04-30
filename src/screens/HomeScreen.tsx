@@ -19,7 +19,6 @@ import { AdBanner } from '../components/AdBanner/AdBanner';
 import { loadTrips } from '../utilities/tripStorage';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-type KrogerStoreLocatorNavigationProp = StackNavigationProp<RootStackParamList, 'StoreSelector'>;
 
 const { width } = Dimensions.get('window');
 const isSmallScreen = width < 375;
