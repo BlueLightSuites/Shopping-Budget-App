@@ -1,5 +1,8 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
+/** Number of trips visible to free-tier users in Recent Trips */
+export const FREE_TRIP_LIMIT = 3;
+
 export interface AdContextType {
   isPremium: boolean;
   shouldShowAds: boolean;

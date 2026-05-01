@@ -19,11 +19,13 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
 import { AdBanner } from '../components/AdBanner/AdBanner';
+import { useTheme } from '../contexts/ThemeContext';
 
 type BudgetInputScreenNavigationProp = StackNavigationProp<RootStackParamList, 'BudgetInput'>;
 
 export default function BudgetInputScreen() {
   const navigation = useNavigation<BudgetInputScreenNavigationProp>();
+  const { colors } = useTheme();
   const [budget, setBudget] = useState('100.00');
   const [currencySymbol, setCurrencySymbol] = useState('$');
 
@@ -58,7 +60,7 @@ export default function BudgetInputScreen() {
   const isReady = parseFloat(budget) > 0;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
       {/* Dark navy header */}
@@ -84,12 +86,12 @@ export default function BudgetInputScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Budget input card */}
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
             <Text style={styles.cardLabel}>ENTER AMOUNT</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.currencySymbol}>{currencySymbol}</Text>
+            <View style={[styles.inputContainer, { backgroundColor: colors.inputBackground }]}>
+              <Text style={[styles.currencySymbol, { color: colors.textPrimary }]}>{currencySymbol}</Text>
               <TextInput
-                style={styles.budgetInput}
+                style={[styles.budgetInput, { color: colors.textPrimary }]}
                 value={budget}
                 onChangeText={handleBudgetChange}
                 keyboardType="decimal-pad"
@@ -101,16 +103,17 @@ export default function BudgetInputScreen() {
             </View>
 
             {/* Divider */}
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.divider }]} />
 
             {/* Quick options */}
-            <Text style={styles.quickLabel}>Quick Options</Text>
+            <Text style={[styles.quickLabel, { color: colors.textSecondary }]}>Quick Options</Text>
             <View style={styles.quickBudgetButtons}>
               {[50, 75, 100, 150, 200, 250].map((amount) => (
                 <TouchableOpacity
                   key={amount}
                   style={[
                     styles.quickBudgetButton,
+                    { backgroundColor: colors.chipBackground, borderColor: colors.chipBorder },
                     parseFloat(budget) === amount && styles.quickBudgetButtonActive,
                   ]}
                   onPress={() => handleQuickBudget(amount)}
@@ -118,6 +121,7 @@ export default function BudgetInputScreen() {
                   <Text
                     style={[
                       styles.quickBudgetText,
+                      { color: colors.textSecondary },
                       parseFloat(budget) === amount && styles.quickBudgetTextActive,
                     ]}
                   >

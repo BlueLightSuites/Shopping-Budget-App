@@ -7,6 +7,7 @@ import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList, CartItem, StoreId } from '../types';
 import { saveTrip } from '../utilities/tripStorage';
+import { useTheme } from '../contexts/ThemeContext';
 
 // ShoppingItem type for local use
 type ShoppingItem = {
@@ -33,6 +34,7 @@ const MainShoppingScreen: React.FC = () => {
   );
   const [shownMilestones, setShownMilestones] = useState<number[]>([]);
   const [tripFinished, setTripFinished] = useState(false);
+  const { colors } = useTheme();
 
   // Sync items when route params are updated (e.g. returning from ScanViewScreen)
   useEffect(() => {
@@ -98,23 +100,23 @@ const MainShoppingScreen: React.FC = () => {
   const renderItem = ({ item }: { item: ShoppingItem }) => {
     const storeMeta = item.storeId ? STORE_LABELS[item.storeId] : null;
     return (
-      <View style={styles.itemContainer}>
+      <View style={[styles.itemContainer, { backgroundColor: colors.card, borderColor: colors.cardBorder, borderWidth: 1 }]}>
         <View style={styles.itemInfo}>
           <View style={{ flex: 2 }}>
-            <Text style={styles.itemName}>{item.description}</Text>
+            <Text style={[styles.itemName, { color: colors.textPrimary }]}>{item.description}</Text>
             {storeMeta && (
               <View style={[styles.storeBadge, { backgroundColor: storeMeta.color }]}>
                 <Text style={styles.storeBadgeText}>{storeMeta.label}</Text>
               </View>
             )}
           </View>
-          <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+          <Text style={[styles.itemPrice, { color: colors.textSecondary }]}>${item.price.toFixed(2)}</Text>
         </View>
         <View style={styles.qtyControls}>
           <TouchableOpacity onPress={() => handleQuantityChange(item.id, -1)} style={styles.qtyBtn}>
             <Ionicons name="remove" size={18} color="#4A90E2" />
           </TouchableOpacity>
-          <Text style={styles.itemQty}>{item.quantity}</Text>
+          <Text style={[styles.itemQty, { color: colors.textPrimary }]}>{item.quantity}</Text>
           <TouchableOpacity onPress={() => handleQuantityChange(item.id, 1)} style={styles.qtyBtn}>
             <Ionicons name="add" size={18} color="#4A90E2" />
           </TouchableOpacity>
@@ -127,7 +129,7 @@ const MainShoppingScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Top Bar */}
       <View style={styles.topBar}>
         <View style={styles.budgetBlock}>
@@ -161,11 +163,11 @@ const MainShoppingScreen: React.FC = () => {
         style={styles.list}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Ionicons name="cart-outline" size={64} color="#ccc" />
-            <Text style={styles.emptyTitle}>
+            <Ionicons name="cart-outline" size={64} color={colors.textMuted} />
+            <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>
               {budget > 0 ? 'No items yet' : 'No active shopping trip'}
             </Text>
-            <Text style={styles.emptySubtitle}>
+            <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
               {budget > 0
                 ? 'Go back to scan items and add them to your list'
                 : 'Start a new trip from the Home tab to set a budget and scan items'}
@@ -176,7 +178,7 @@ const MainShoppingScreen: React.FC = () => {
 
       {/* Bottom Action Buttons */}
       {budget > 0 && (
-        <View style={styles.bottomActions}>
+        <View style={[styles.bottomActions, { backgroundColor: colors.card, borderTopColor: colors.cardBorder }]}>
           {tripFinished ? (
             <TouchableOpacity
               style={[styles.actionBtn, styles.actionBtnOutline]}

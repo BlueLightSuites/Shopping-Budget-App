@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList, ShoppingTrip, CartItem, StoreId } from '../types';
 import { loadTrips } from '../utilities/tripStorage';
+import { useTheme } from '../contexts/ThemeContext';
 
 type Props = StackScreenProps<RootStackParamList, 'TripDetail'>;
 
@@ -27,6 +28,7 @@ const storeColor = (s: StoreId) => (s === 'walmart' ? WALMART_COLOR : SMITHS_COL
 
 const TripDetailScreen = ({ route, navigation }: Props) => {
   const { tripId } = route.params;
+  const { colors } = useTheme();
   const [trip, setTrip] = useState<ShoppingTrip | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -63,7 +65,7 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={GREEN} />
@@ -74,10 +76,10 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
 
   if (!trip) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
         <View style={styles.loadingContainer}>
-          <Text style={styles.errorText}>Trip not found.</Text>
+          <Text style={[styles.errorText, { color: colors.textSecondary }]}>Trip not found.</Text>
         </View>
       </SafeAreaView>
     );
@@ -150,11 +152,11 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
     // ── Summary card ──────────────────────────────────────────
     if (row.type === 'summary') {
       return (
-        <View style={styles.summaryCard}>
+        <View style={[styles.summaryCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
           {/* Date & time */}
           <View style={styles.summaryDateRow}>
             <Ionicons name="calendar-outline" size={15} color="#64748B" />
-            <Text style={styles.summaryDateText}>
+            <Text style={[styles.summaryDateText, { color: colors.textSecondary }]}>
               {formatFullDate(trip.createdAt)} · {formatTime(trip.createdAt)}
             </Text>
           </View>
@@ -163,22 +165,22 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
           {trip.completedAt && (
             <View style={styles.summaryDateRow}>
               <Ionicons name="time-outline" size={15} color="#64748B" />
-              <Text style={styles.summaryDateText}>
+              <Text style={[styles.summaryDateText, { color: colors.textSecondary }]}>
                 Completed in {formatDuration(trip.createdAt, trip.completedAt)}
               </Text>
             </View>
           )}
 
           {/* Divider */}
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
 
           {/* Budget progress */}
-          <Text style={styles.summaryLabel}>BUDGET</Text>
+          <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>BUDGET</Text>
           <View style={styles.progressRow}>
-            <Text style={styles.progressSpent}>${trip.spent.toFixed(2)}</Text>
-            <Text style={styles.progressBudget}> / ${trip.budget.toFixed(2)}</Text>
+            <Text style={[styles.progressSpent, { color: colors.textPrimary }]}>${trip.spent.toFixed(2)}</Text>
+            <Text style={[styles.progressBudget, { color: colors.textSecondary }]}> / ${trip.budget.toFixed(2)}</Text>
           </View>
-          <View style={styles.progressTrack}>
+          <View style={[styles.progressTrack, { backgroundColor: colors.sectionDivider }]}>
             <View
               style={[
                 styles.progressFill,
@@ -193,35 +195,35 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
           </Text>
 
           {/* Divider */}
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
 
           {/* Quick stats */}
           <View style={styles.quickStats}>
             <View style={styles.quickStat}>
-              <Text style={styles.quickStatValue}>{totalItemCount}</Text>
-              <Text style={styles.quickStatLabel}>
+              <Text style={[styles.quickStatValue, { color: colors.textPrimary }]}>{totalItemCount}</Text>
+              <Text style={[styles.quickStatLabel, { color: colors.textMuted }]}>
                 {totalItemCount === 1 ? 'Item' : 'Items'}
               </Text>
             </View>
-            <View style={styles.quickStatDivider} />
+            <View style={[styles.quickStatDivider, { backgroundColor: colors.sectionDivider }]} />
             <View style={styles.quickStat}>
-              <Text style={styles.quickStatValue}>${avgItemCost.toFixed(2)}</Text>
-              <Text style={styles.quickStatLabel}>Avg / Item</Text>
+              <Text style={[styles.quickStatValue, { color: colors.textPrimary }]}>${avgItemCost.toFixed(2)}</Text>
+              <Text style={[styles.quickStatLabel, { color: colors.textMuted }]}>Avg / Item</Text>
             </View>
             {storeEntries.length > 1 && (
               <>
-                <View style={styles.quickStatDivider} />
+                <View style={[styles.quickStatDivider, { backgroundColor: colors.sectionDivider }]} />
                 <View style={styles.quickStat}>
-                  <Text style={styles.quickStatValue}>{storeEntries.length}</Text>
-                  <Text style={styles.quickStatLabel}>Stores</Text>
+                  <Text style={[styles.quickStatValue, { color: colors.textPrimary }]}>{storeEntries.length}</Text>
+                  <Text style={[styles.quickStatLabel, { color: colors.textMuted }]}>Stores</Text>
                 </View>
               </>
             )}
           </View>
 
           {/* Section title */}
-          <View style={[styles.divider, { marginBottom: 0 }]} />
-          <Text style={[styles.summaryLabel, { marginTop: 16, marginBottom: 0 }]}>ITEMS</Text>
+          <View style={[styles.divider, { marginBottom: 0, backgroundColor: colors.divider }]} />
+          <Text style={[styles.summaryLabel, { marginTop: 16, marginBottom: 0, color: colors.textSecondary }]}>ITEMS</Text>
         </View>
       );
     }
@@ -235,7 +237,7 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
             { borderLeftColor: row.store ? storeColor(row.store) : '#64748B' },
           ]}
         >
-          <Text style={styles.storeGroupHeaderText}>
+          <Text style={[styles.storeGroupHeaderText, { color: colors.textSecondary }]}>
             {row.store ? storeLabel(row.store) : 'Other'}
           </Text>
         </View>
@@ -246,23 +248,23 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
     if (row.type === 'item') {
       const { item, storeColor: sc } = row;
       return (
-        <View style={styles.itemRow}>
+        <View style={[styles.itemRow, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
           <View style={[styles.itemStoreAccent, { backgroundColor: sc }]} />
           <View style={styles.itemInfo}>
-            <Text style={styles.itemName} numberOfLines={2}>
+            <Text style={[styles.itemName, { color: colors.textPrimary }]} numberOfLines={2}>
               {item.product.name || item.product.description || 'Unknown Item'}
             </Text>
             {item.product.brand ? (
-              <Text style={styles.itemBrand}>{item.product.brand}</Text>
+              <Text style={[styles.itemBrand, { color: colors.textMuted }]}>{item.product.brand}</Text>
             ) : null}
           </View>
           <View style={styles.itemPricing}>
             {item.quantity > 1 && (
-              <Text style={styles.itemQtyPrice}>
+              <Text style={[styles.itemQtyPrice, { color: colors.textMuted }]}>
                 {item.quantity} × ${item.product.price.toFixed(2)}
               </Text>
             )}
-            <Text style={styles.itemTotal}>${item.totalPrice.toFixed(2)}</Text>
+            <Text style={[styles.itemTotal, { color: colors.textPrimary }]}>${item.totalPrice.toFixed(2)}</Text>
           </View>
         </View>
       );
@@ -272,10 +274,10 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
     if (row.type === 'storeDivider') {
       return (
         <View style={styles.storeSubtotalRow}>
-          <Text style={styles.storeSubtotalLabel}>
+          <Text style={[styles.storeSubtotalLabel, { color: colors.textSecondary }]}>
             {row.store ? storeLabel(row.store) : 'Other'} Subtotal
           </Text>
-          <Text style={styles.storeSubtotalValue}>${row.subtotal.toFixed(2)}</Text>
+          <Text style={[styles.storeSubtotalValue, { color: colors.textPrimary }]}>${row.subtotal.toFixed(2)}</Text>
         </View>
       );
     }
@@ -283,15 +285,15 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
     // ── Multi-store breakdown ─────────────────────────────────
     if (row.type === 'storeBreakdown') {
       return (
-        <View style={styles.breakdownCard}>
-          <Text style={styles.summaryLabel}>STORE BREAKDOWN</Text>
+        <View style={[styles.breakdownCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+          <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>STORE BREAKDOWN</Text>
           {storeEntries.map(([s, total]) => (
-            <View key={s} style={styles.breakdownRow}>
+            <View key={s} style={[styles.breakdownRow, { borderBottomColor: colors.divider }]}>
               <View style={styles.breakdownStoreLabel}>
                 <View style={[styles.breakdownDot, { backgroundColor: storeColor(s) }]} />
-                <Text style={styles.breakdownStoreName}>{storeLabel(s)}</Text>
+                <Text style={[styles.breakdownStoreName, { color: colors.textPrimary }]}>{storeLabel(s)}</Text>
               </View>
-              <Text style={styles.breakdownAmount}>${total.toFixed(2)}</Text>
+              <Text style={[styles.breakdownAmount, { color: colors.textPrimary }]}>${total.toFixed(2)}</Text>
             </View>
           ))}
         </View>
@@ -302,7 +304,7 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
       {/* Header */}

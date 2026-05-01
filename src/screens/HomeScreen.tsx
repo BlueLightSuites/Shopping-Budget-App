@@ -17,6 +17,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
 import { AdBanner } from '../components/AdBanner/AdBanner';
 import { loadTrips } from '../utilities/tripStorage';
+import { useAds } from '../contexts/AdContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { PremiumUpsellModal } from '../components/PremiumUpsellModal/PremiumUpsellModal';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -25,10 +28,13 @@ const isSmallScreen = width < 375;
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { isPremium } = useAds();
+  const { colors } = useTheme();
   const [totalSaved, setTotalSaved] = useState(0);
   const [tripsThisMonth, setTripsThisMonth] = useState(0);
   const [totalTrips, setTotalTrips] = useState(0);
   const [allTimeSaved, setAllTimeSaved] = useState(0);
+  const [showUpsell, setShowUpsell] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -54,7 +60,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
       {/* Dark navy header */}
@@ -72,15 +78,15 @@ export default function HomeScreen() {
       >
         {/* Stat Cards */}
         <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
             <Text style={styles.statEmoji}>💰</Text>
-            <Text style={styles.statNumber}>${totalSaved.toFixed(2)}</Text>
-            <Text style={styles.statLabel}>Total Saved</Text>
+            <Text style={[styles.statNumber, { color: colors.textPrimary }]}>${totalSaved.toFixed(2)}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total Saved</Text>
           </View>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
             <Text style={styles.statEmoji}>🛒</Text>
-            <Text style={styles.statNumber}>{tripsThisMonth}</Text>
-            <Text style={styles.statLabel}>Trips This Month</Text>
+            <Text style={[styles.statNumber, { color: colors.textPrimary }]}>{tripsThisMonth}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Trips This Month</Text>
           </View>
         </View>
 
@@ -118,59 +124,81 @@ export default function HomeScreen() {
           <Text style={styles.featureText}>Save money on groceries</Text>
         </View> */}
 
-        {/* All-Time Summary */}
-        {totalTrips > 0 && (
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>All-Time Summary</Text>
+        {/* All-Time Summary — Premium only */}
+        {isPremium ? (
+          <View style={[styles.summaryCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
+            <Text style={[styles.summaryTitle, { color: colors.textSecondary }]}>All-Time Summary</Text>
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
                 <Ionicons name="receipt-outline" size={20} color="#10B981" />
-                <Text style={styles.summaryValue}>{totalTrips}</Text>
-                <Text style={styles.summaryLabel}>Total Trips</Text>
+                <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>{totalTrips}</Text>
+                <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>Total Trips</Text>
               </View>
-              <View style={styles.summaryDivider} />
+              <View style={[styles.summaryDivider, { backgroundColor: colors.sectionDivider }]} />
               <View style={styles.summaryItem}>
                 <Ionicons name="trending-down-outline" size={20} color="#10B981" />
-                <Text style={styles.summaryValue}>${allTimeSaved.toFixed(2)}</Text>
-                <Text style={styles.summaryLabel}>Total Saved</Text>
+                <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>${allTimeSaved.toFixed(2)}</Text>
+                <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>Total Saved</Text>
               </View>
-              <View style={styles.summaryDivider} />
+              <View style={[styles.summaryDivider, { backgroundColor: colors.sectionDivider }]} />
               <View style={styles.summaryItem}>
                 <Ionicons name="calendar-outline" size={20} color="#10B981" />
-                <Text style={styles.summaryValue}>{tripsThisMonth}</Text>
-                <Text style={styles.summaryLabel}>This Month</Text>
+                <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>{tripsThisMonth}</Text>
+                <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>This Month</Text>
               </View>
             </View>
           </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.lockedSummaryCard}
+            onPress={() => setShowUpsell(true)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.lockedOverlay}>
+              <Ionicons name="lock-closed" size={22} color="#F59E0B" />
+              <Text style={styles.lockedTitle}>All-Time Summary</Text>
+              <Text style={styles.lockedSubtext}>Upgrade to Premium to see your total trips, all-time savings & more</Text>
+              <View style={styles.lockedBadge}>
+                <Ionicons name="star" size={12} color="#F59E0B" />
+                <Text style={styles.lockedBadgeText}>Premium</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
         )}
 
         {/* How it Works */}
-        <Text style={styles.sectionLabel}>HOW IT WORKS</Text>
-        <View style={styles.stepCard}>
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>HOW IT WORKS</Text>
+        <View style={[styles.stepCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
           <View style={styles.stepBadge}><Text style={styles.stepNumber}>1</Text></View>
           <View style={styles.stepTextWrap}>
-            <Text style={styles.stepTitle}>Set Your Budget</Text>
-            <Text style={styles.stepDesc}>Enter how much you want to spend before you shop.</Text>
+            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Set Your Budget</Text>
+            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>Enter how much you want to spend before you shop.</Text>
           </View>
         </View>
-        <View style={styles.stepCard}>
+        <View style={[styles.stepCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
           <View style={styles.stepBadge}><Text style={styles.stepNumber}>2</Text></View>
           <View style={styles.stepTextWrap}>
-            <Text style={styles.stepTitle}>Scan Barcodes</Text>
-            <Text style={styles.stepDesc}>Point your camera at any barcode to look up prices instantly.</Text>
+            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Scan Barcodes</Text>
+            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>Point your camera at any barcode to look up prices instantly.</Text>
           </View>
         </View>
-        <View style={styles.stepCard}>
+        <View style={[styles.stepCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
           <View style={styles.stepBadge}><Text style={styles.stepNumber}>3</Text></View>
           <View style={styles.stepTextWrap}>
-            <Text style={styles.stepTitle}>Track & Save</Text>
-            <Text style={styles.stepDesc}>Watch your remaining balance update in real time as you shop.</Text>
+            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Track & Save</Text>
+            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>Watch your remaining balance update in real time as you shop.</Text>
           </View>
         </View>
 
         {/* Top Ad Banner */}
         <AdBanner size="medium" style={{ marginBottom: 16 }} />
       </ScrollView>
+
+      <PremiumUpsellModal
+        visible={showUpsell}
+        onClose={() => setShowUpsell(false)}
+        feature="all-time analytics"
+      />
     </SafeAreaView>
   );
 }
@@ -392,5 +420,53 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginTop: 2,
     lineHeight: 18,
+  },
+
+  // Locked (free-tier) summary card
+  lockedSummaryCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    marginBottom: 20,
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    overflow: 'hidden',
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  lockedOverlay: {
+    alignItems: 'center',
+    paddingVertical: 22,
+    paddingHorizontal: 20,
+    gap: 6,
+  },
+  lockedTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginTop: 4,
+  },
+  lockedSubtext: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  lockedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginTop: 6,
+    gap: 4,
+  },
+  lockedBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#D97706',
   },
 });

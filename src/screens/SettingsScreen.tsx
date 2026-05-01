@@ -17,14 +17,19 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
 import { AdBanner } from '../components/AdBanner/AdBanner';
 import { useBiometric } from '../contexts/BiometricContext';
+import { useAds } from '../contexts/AdContext';
+import { PremiumUpsellModal } from '../components/PremiumUpsellModal/PremiumUpsellModal';
+import { useTheme } from '../contexts/ThemeContext';
 
 type SettingsNavigationProp = StackNavigationProp<RootStackParamList, 'Settings'>;
 
 const SettingsScreen = () => {
   const navigation = useNavigation<SettingsNavigationProp>();
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const { biometricEnabled, isSupported, toggleBiometric } = useBiometric();
+  const { isPremium } = useAds();
+  const { isDarkMode, toggleDarkMode, colors } = useTheme();
+  const [showUpsell, setShowUpsell] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -75,11 +80,14 @@ const SettingsScreen = () => {
     onPress: () => void;
     showChevron?: boolean;
   }) => (
-    <TouchableOpacity style={styles.settingItem} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.settingItem, { borderBottomColor: colors.settingItemBorder }]}
+      onPress={onPress}
+    >
       <View style={styles.settingContent}>
         <Ionicons name={icon as any} size={24} color="#10B981" />
         <View style={styles.settingText}>
-          <Text style={styles.settingTitle}>{title}</Text>
+          <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>{title}</Text>
           {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
@@ -100,11 +108,11 @@ const SettingsScreen = () => {
     value: boolean;
     onToggle: (value: boolean) => void;
   }) => (
-    <View style={styles.settingItem}>
+    <View style={[styles.settingItem, { borderBottomColor: colors.settingItemBorder }]}>
       <View style={styles.settingContent}>
         <Ionicons name={icon as any} size={24} color="#10B981" />
         <View style={styles.settingText}>
-          <Text style={styles.settingTitle}>{title}</Text>
+          <Text style={[styles.settingTitle, { color: colors.textPrimary }]}>{title}</Text>
           {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
         </View>
       </View>
@@ -142,7 +150,7 @@ const SettingsScreen = () => {
           {/* Account Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account</Text>
-            <View style={styles.sectionContent}>
+            <View style={[styles.sectionContent, { backgroundColor: colors.card }]}>
               <SettingItem
                 icon="person"
                 title="Profile"
@@ -167,7 +175,7 @@ const SettingsScreen = () => {
           {/* Preferences Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Preferences</Text>
-            <View style={styles.sectionContent}>
+            <View style={[styles.sectionContent, { backgroundColor: colors.card }]}>
               <ToggleSetting
                 icon="notifications"
                 title="Notifications"
@@ -179,15 +187,27 @@ const SettingsScreen = () => {
                 icon="moon"
                 title="Dark Mode"
                 subtitle="Use dark theme"
-                value={darkMode}
-                onToggle={setDarkMode}
+                value={isDarkMode}
+                onToggle={toggleDarkMode}
               />
               <ToggleSetting
                 icon="finger-print"
-                title="Biometric Login"
-                subtitle={isSupported ? 'Use Face ID or Touch ID to unlock' : 'Not available on this device'}
-                value={biometricEnabled}
-                onToggle={toggleBiometric}
+                title={`Biometric Login${!isPremium ? ' 🔒' : ''}`}
+                subtitle={
+                  !isPremium
+                    ? 'Premium feature — tap to upgrade'
+                    : isSupported
+                    ? 'Use Face ID or Touch ID to unlock'
+                    : 'Not available on this device'
+                }
+                value={isPremium ? biometricEnabled : false}
+                onToggle={(value) => {
+                  if (!isPremium) {
+                    setShowUpsell(true);
+                    return;
+                  }
+                  toggleBiometric(value);
+                }}
               />
             </View>
           </View>
@@ -195,7 +215,7 @@ const SettingsScreen = () => {
           {/* App Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>App</Text>
-            <View style={styles.sectionContent}>
+            <View style={[styles.sectionContent, { backgroundColor: colors.card }]}>
               <SettingItem
                 icon="document-text"
                 title="About"
@@ -229,7 +249,7 @@ const SettingsScreen = () => {
           {/* Data Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Data</Text>
-            <View style={styles.sectionContent}>
+            <View style={[styles.sectionContent, { backgroundColor: colors.card }]}>
               <SettingItem
                 icon="trash"
                 title="Clear All Data"
@@ -250,6 +270,12 @@ const SettingsScreen = () => {
           </View>
         </ScrollView>
       </LinearGradient>
+
+      <PremiumUpsellModal
+        visible={showUpsell}
+        onClose={() => setShowUpsell(false)}
+        feature="biometric lock"
+      />
     </SafeAreaView>
   );
 };

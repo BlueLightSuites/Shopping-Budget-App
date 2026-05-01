@@ -17,6 +17,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AdBanner } from '../AdBanner/AdBanner';
+import { useAds } from '@/contexts/AdContext';
+import { PremiumUpsellModal } from '../PremiumUpsellModal/PremiumUpsellModal';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const ZIP_STORAGE_KEY = '@last_zip_code';
 
@@ -38,8 +41,11 @@ const StoreSelector = () => {
   const route = useRoute<StoreSelectorScreenRouteProp>();
   const { budget, existingItems = [], visitedStores = [] } = route.params;
   const navigation = useNavigation<StoreLocatorNavigationProp>();
+  const { isPremium } = useAds();
+  const { colors } = useTheme();
   const [selectedStore, setSelectedStore] = useState<number | null>(null);
   const [zipCode, setZipCode] = useState('');
+  const [showUpsell, setShowUpsell] = useState(false);
 
   // Restore last used ZIP code
   useEffect(() => {
@@ -49,6 +55,17 @@ const StoreSelector = () => {
   }, []);
 
   const handleStoreSelect = (storeId: number) => {
+    const selectedStoreId = stores.find((s) => s.id === storeId)?.storeId;
+    // Block free users from picking a second store in the same trip
+    if (
+      !isPremium &&
+      visitedStores.length > 0 &&
+      selectedStoreId &&
+      !visitedStores.includes(selectedStoreId)
+    ) {
+      setShowUpsell(true);
+      return;
+    }
     setSelectedStore(storeId);
   };
 
@@ -77,8 +94,9 @@ const StoreSelector = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+    <>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
       {/* Dark navy header */}
       <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>
@@ -101,13 +119,14 @@ const StoreSelector = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Store grid */}
-        <Text style={styles.sectionLabel}>AVAILABLE STORES</Text>
+        <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>AVAILABLE STORES</Text>
         <View style={styles.storeGrid}>
           {stores.map((store) => (
             <TouchableOpacity
               key={store.id}
               style={[
                 styles.storeCard,
+                { backgroundColor: colors.card, borderColor: colors.cardBorder },
                 selectedStore === store.id && styles.storeCardSelected,
               ]}
               onPress={() => handleStoreSelect(store.id)}
@@ -136,6 +155,7 @@ const StoreSelector = () => {
               </View>
               <Text style={[
                 styles.storeName,
+                { color: colors.textSecondary },
                 selectedStore === store.id && styles.storeNameSelected,
               ]}>
                 {store.name}
@@ -149,22 +169,22 @@ const StoreSelector = () => {
 
         {/* Zip Code card — shown after store selection */}
         {selectedStore && (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}>
             <View style={styles.cardHeaderRow}>
               <Ionicons name="location" size={20} color="#10B981" />
               <View style={{ marginLeft: 10, flex: 1 }}>
-                <Text style={styles.cardTitle}>Location Details</Text>
+                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Location Details</Text>
                 <Text style={styles.cardSubtitle}>Find the best deals near you</Text>
               </View>
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.sectionDivider }]} />
 
-            <Text style={styles.inputLabel}>ZIP CODE</Text>
-            <View style={styles.inputWrapper}>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>ZIP CODE</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>
               <Ionicons name="navigate-outline" size={18} color="#94A3B8" style={{ marginRight: 8 }} />
               <TextInput
-                style={styles.zipInput}
+                style={[styles.zipInput, { color: colors.textPrimary }]}
                 placeholder="Enter your zip code"
                 placeholderTextColor="#CBD5E1"
                 keyboardType="numeric"
@@ -203,6 +223,13 @@ const StoreSelector = () => {
         )}
       </ScrollView>
     </SafeAreaView>
+
+    <PremiumUpsellModal
+      visible={showUpsell}
+      onClose={() => setShowUpsell(false)}
+      feature="multi-store trips"
+    />
+    </>
   );
 };
 

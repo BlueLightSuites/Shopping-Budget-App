@@ -14,6 +14,7 @@ import TripDetailScreen from '../screens/TripDetailScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { BiometricProvider, useBiometric } from '../contexts/BiometricContext';
 import LockScreen from '../screens/LockScreen';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -91,6 +92,7 @@ function SettingsStack() {
 
 function AppContent() {
   const { isLocked } = useBiometric();
+  const { colors } = useTheme();
 
   if (isLocked) {
     return <LockScreen />;
@@ -118,8 +120,8 @@ function AppContent() {
           tabBarActiveTintColor: '#4A90E2',
           tabBarInactiveTintColor: '#8E8E93',
           tabBarStyle: {
-            backgroundColor: '#FFFFFF',
-            borderTopColor: '#E5E5EA',
+            backgroundColor: colors.tabBar,
+            borderTopColor: colors.tabBarBorder,
             borderTopWidth: 1,
             paddingTop: 8,
           },

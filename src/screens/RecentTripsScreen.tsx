@@ -16,6 +16,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { ShoppingTrip, RootStackParamList } from '../types';
 import { AdBanner } from '../components/AdBanner/AdBanner';
 import { loadTrips } from '../utilities/tripStorage';
+import { useAds, FREE_TRIP_LIMIT } from '../contexts/AdContext';
+import { PremiumUpsellModal } from '../components/PremiumUpsellModal/PremiumUpsellModal';
+import { useTheme } from '../contexts/ThemeContext';
 
 type RecentTripsNavigationProp = StackNavigationProp<RootStackParamList, 'RecentTrips'>;
 
@@ -23,10 +26,13 @@ const PAGE_SIZE = 10;
 
 const RecentTripsScreen = () => {
   const navigation = useNavigation<RecentTripsNavigationProp>();
+  const { isPremium } = useAds();
+  const { colors } = useTheme();
   const [trips, setTrips] = useState<ShoppingTrip[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [showUpsell, setShowUpsell] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -83,14 +89,14 @@ const RecentTripsScreen = () => {
   const renderTripItem = ({ item, index }: { item: ShoppingTrip; index: number }) => (
     <View key={item.id}>
       <TouchableOpacity
-        style={styles.tripCard}
+        style={[styles.tripCard, { backgroundColor: colors.card, borderColor: colors.cardBorder }]}
         onPress={() => navigation.navigate('TripDetail', { tripId: item.id })}
         activeOpacity={0.7}
       >
-        <View style={styles.tripHeader}>
+        <View style={[styles.tripHeader, { borderBottomColor: colors.divider }]}>
           <View style={styles.tripInfo}>
-            <Text style={styles.tripDate}>{formatDate(item.createdAt)}</Text>
-            <Text style={styles.tripBudget}>Budget: ${item.budget.toFixed(2)}</Text>
+            <Text style={[styles.tripDate, { color: colors.textPrimary }]}>{formatDate(item.createdAt)}</Text>
+            <Text style={[styles.tripBudget, { color: colors.textSecondary }]}>Budget: ${item.budget.toFixed(2)}</Text>
             {item.stores && item.stores.length > 0 && (
               <View style={styles.storeChips}>
                 {Array.from(new Set(item.stores)).map((s) => (
@@ -110,17 +116,17 @@ const RecentTripsScreen = () => {
         </View>
         <View style={styles.tripStats}>
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Spent</Text>
-            <Text style={styles.statValue}>${item.spent.toFixed(2)}</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>Spent</Text>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>${item.spent.toFixed(2)}</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Remaining</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>Remaining</Text>
             <Text style={[styles.statValue, { color: '#10B981' }]}>
               ${item.remaining.toFixed(2)}
             </Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Saved</Text>
+            <Text style={[styles.statLabel, { color: colors.textMuted }]}>Saved</Text>
             <Text style={[styles.statValue, { color: '#10B981' }]}>
               {(((item.budget - item.spent) / item.budget) * 100).toFixed(1)}%
             </Text>
@@ -135,10 +141,13 @@ const RecentTripsScreen = () => {
   /** Build a flat list of section-header + trip rows for FlatList */
   type ListRow =
     | { type: 'header'; label: string }
-    | { type: 'trip'; trip: ShoppingTrip; globalIndex: number };
+    | { type: 'trip'; trip: ShoppingTrip; globalIndex: number }
+    | { type: 'locked'; hiddenCount: number };
 
   const listData = useMemo<ListRow[]>(() => {
-    const visible = trips.slice(0, visibleCount);
+    // Free users see at most FREE_TRIP_LIMIT trips; premium users see all (paginated)
+    const cap = isPremium ? visibleCount : Math.min(FREE_TRIP_LIMIT, trips.length);
+    const visible = trips.slice(0, cap);
     const thisMonth = visible.filter((t) => isThisMonth(t.createdAt));
     const older = visible.filter((t) => !isThisMonth(t.createdAt));
     const rows: ListRow[] = [];
@@ -152,12 +161,41 @@ const RecentTripsScreen = () => {
         rows.push({ type: 'trip', trip, globalIndex: i + thisMonth.length })
       );
     }
+    // Append locked row for free users if there are more trips beyond the cap
+    if (!isPremium && trips.length > FREE_TRIP_LIMIT) {
+      rows.push({ type: 'locked', hiddenCount: trips.length - FREE_TRIP_LIMIT });
+    }
     return rows;
-  }, [trips, visibleCount]);
+  }, [trips, visibleCount, isPremium]);
 
   const renderRow = ({ item }: { item: ListRow }) => {
     if (item.type === 'header') {
-      return <Text style={styles.sectionLabel}>{item.label}</Text>;
+      return <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>{item.label}</Text>;
+    }
+    if (item.type === 'locked') {
+      return (
+        <TouchableOpacity
+          style={styles.lockedCard}
+          onPress={() => setShowUpsell(true)}
+          activeOpacity={0.85}
+        >
+          <View style={styles.lockedCardInner}>
+            <Ionicons name="lock-closed" size={22} color="#F59E0B" />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.lockedCardTitle}>
+                {item.hiddenCount} more trip{item.hiddenCount !== 1 ? 's' : ''} hidden
+              </Text>
+              <Text style={styles.lockedCardSubtext}>
+                Upgrade to Premium to unlock your full trip history
+              </Text>
+            </View>
+            <View style={styles.lockedCardBadge}>
+              <Ionicons name="star" size={12} color="#F59E0B" />
+              <Text style={styles.lockedCardBadgeText}>Premium</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      );
     }
     return renderTripItem({ item: item.trip, index: item.globalIndex });
   };
@@ -174,7 +212,7 @@ const RecentTripsScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
         <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>
           <Text style={styles.headerTitle}>Recent Trips</Text>
@@ -188,7 +226,7 @@ const RecentTripsScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
       {/* Dark navy header */}
@@ -202,9 +240,11 @@ const RecentTripsScreen = () => {
       {trips.length > 0 ? (
         <FlatList
           data={listData}
-          keyExtractor={(item, index) =>
-            item.type === 'header' ? `header-${item.label}` : `trip-${item.trip.id}-${index}`
-          }
+          keyExtractor={(item, index) => {
+            if (item.type === 'header') return `header-${item.label}`;
+            if (item.type === 'locked') return 'locked-row';
+            return `trip-${item.trip.id}-${index}`;
+          }}
           renderItem={renderRow}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -219,6 +259,12 @@ const RecentTripsScreen = () => {
           <Text style={styles.emptySubtext}>Start a new shopping trip to get started</Text>
         </View>
       )}
+
+      <PremiumUpsellModal
+        visible={showUpsell}
+        onClose={() => setShowUpsell(false)}
+        feature="unlimited trip history"
+      />
     </SafeAreaView>
   );
 };
@@ -365,6 +411,52 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: 'white',
     letterSpacing: 0.3,
+  },
+
+  // Locked (free-tier) upgrade card
+  lockedCard: {
+    backgroundColor: '#FFFBEB',
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  lockedCardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 4,
+  },
+  lockedCardTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  lockedCardSubtext: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  lockedCardBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    gap: 3,
+    marginLeft: 8,
+  },
+  lockedCardBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#D97706',
   },
 });
 
