@@ -44,7 +44,7 @@ export default function LockScreen() {
           {/* App Icon Area */}
           <View style={styles.logoRow}>
             <Ionicons name="scan" size={40} color="white" />
-            <Text style={styles.appName}>Price Scanner</Text>
+            <Text style={styles.appName}>Scrimpr</Text>
           </View>
 
           <Text style={styles.subtitle}>Smart Shopping Made Easy</Text>

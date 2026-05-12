@@ -8,6 +8,7 @@ import React, {
 import * as LocalAuthentication from 'expo-local-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import { useAds } from './AdContext';
 
 const BIOMETRIC_ENABLED_KEY = '@biometric_enabled';
 
@@ -29,6 +30,7 @@ interface BiometricContextType {
 const BiometricContext = createContext<BiometricContextType | undefined>(undefined);
 
 export const BiometricProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isPremium } = useAds();
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
@@ -45,20 +47,20 @@ export const BiometricProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const stored = await AsyncStorage.getItem(BIOMETRIC_ENABLED_KEY);
         const enabled = stored === 'true';
         setBiometricEnabled(enabled);
-        if (enabled) {
-          // Lock the app on every cold start when enabled
+        if (enabled && isPremium) {
+          // Lock the app on every cold start when enabled (premium only)
           setIsLocked(true);
         }
       }
     };
 
     init();
-  }, []);
+  }, [isPremium]);
 
   const authenticate = useCallback(async (): Promise<boolean> => {
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Unlock Price Scanner',
+        promptMessage: 'Unlock Scrimpr',
         fallbackLabel: 'Use Passcode',
         cancelLabel: 'Cancel',
         disableDeviceFallback: false,
@@ -99,8 +101,8 @@ export const BiometricProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [isSupported]);
 
   const lock = useCallback(() => {
-    if (biometricEnabled) setIsLocked(true);
-  }, [biometricEnabled]);
+    if (biometricEnabled && isPremium) setIsLocked(true);
+  }, [biometricEnabled, isPremium]);
 
   return (
     <BiometricContext.Provider

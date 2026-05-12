@@ -5,10 +5,37 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'react-native';
 import { AdProvider } from './src/contexts/AdContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
+import { useEffect } from 'react';
+import Qonversion, { QonversionConfigBuilder, LaunchMode, Environment } from 'react-native-qonversion';
+import Constants from 'expo-constants';
+
+const QONVERSION_PROJECT_KEY = 'YOUR_QONVERSION_PROJECT_KEY'; // ← replace with your key from qonversion.io
+
+function PurchasesConfig() {
+  useEffect(() => {
+    // react-native-qonversion requires a native build — it cannot run in Expo Go.
+    // Use `npx expo run:ios` or `eas build` to test in-app purchases.
+    const isExpoGo = Constants.executionEnvironment === 'storeClient';
+    if (isExpoGo) {
+      console.warn('[Qonversion] Skipping SDK init — native IAP is not supported in Expo Go. Build a dev client to test purchases.');
+      return;
+    }
+    try {
+      const config = new QonversionConfigBuilder(QONVERSION_PROJECT_KEY, LaunchMode.SUBSCRIPTION_MANAGEMENT)
+        .setEnvironment(__DEV__ ? Environment.SANDBOX : Environment.PRODUCTION)
+        .build();
+      Qonversion.initialize(config);
+    } catch (e) {
+      console.warn('[Qonversion] Failed to configure SDK:', e);
+    }
+  }, []);
+  return null;
+}
 
 export default function App() {
   return (
     <ThemeProvider>
+      <PurchasesConfig />
       <AdProvider>
         <ToastProvider>
           <SafeAreaProvider>

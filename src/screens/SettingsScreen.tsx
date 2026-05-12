@@ -222,7 +222,7 @@ const SettingsScreen = () => {
                 subtitle="Version 1.0.0"
                 onPress={() => {
                   // TODO: Navigate to about screen
-                  alert('Price Scanner v1.0.0\n\nSmart Shopping Made Easy');
+                  alert('Scrimpr v1.0.0\n\nSmart Shopping Made Easy');
                 }}
               />
               <SettingItem
@@ -231,7 +231,7 @@ const SettingsScreen = () => {
                 subtitle="Get help or contact support"
                 onPress={() => {
                   // TODO: Navigate to help screen
-                  alert('Support contact: support@pricescanner.com');
+                  alert('Support contact: support@scrimpr.app');
                 }}
               />
               <SettingItem

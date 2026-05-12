@@ -1,4 +1,7 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const PREMIUM_STORAGE_KEY = '@is_premium';
 
 /** Number of trips visible to free-tier users in Recent Trips */
 export const FREE_TRIP_LIMIT = 3;
@@ -12,12 +15,24 @@ export interface AdContextType {
 const AdContext = createContext<AdContextType | undefined>(undefined);
 
 export const AdProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isPremium, setIsPremium] = useState(false);
+  const [isPremium, setIsPremiumState] = useState(false);
+
+  // Restore persisted premium status on mount
+  useEffect(() => {
+    AsyncStorage.getItem(PREMIUM_STORAGE_KEY).then((val) => {
+      if (val === 'true') setIsPremiumState(true);
+    });
+  }, []);
+
+  const setPremium = (value: boolean) => {
+    setIsPremiumState(value);
+    AsyncStorage.setItem(PREMIUM_STORAGE_KEY, String(value));
+  };
 
   const value: AdContextType = {
     isPremium,
     shouldShowAds: !isPremium,
-    setPremium: setIsPremium,
+    setPremium,
   };
 
   return (

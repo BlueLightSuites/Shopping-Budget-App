@@ -10,6 +10,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAds } from '@/contexts/AdContext';
+import Qonversion from 'react-native-qonversion';
+import Constants from 'expo-constants';
 
 interface PremiumUpsellModalProps {
   visible: boolean;
@@ -27,17 +29,21 @@ const PREMIUM_FEATURES: { icon: string; text: string }[] = [
 ];
 
 /**
- * Initiates the in-app purchase flow.
- * Replace the body of this function with your real purchase SDK call
- * (e.g. expo-in-app-purchases, RevenueCat, etc.).
- * Must return true on success and false/throw on failure or cancellation.
+ * Initiates the in-app purchase flow via Qonversion.
+ * Fetches the current offerings, purchases the first available product,
+ * and checks whether the 'premium' entitlement is active.
  */
 async function startPurchaseFlow(): Promise<boolean> {
-  // TODO: Replace with real in-app purchase SDK
-  // Example with RevenueCat:
-  //   const { customerInfo } = await Purchases.purchasePackage(package);
-  //   return customerInfo.entitlements.active['premium'] !== undefined;
-  throw new Error('In-app purchase flow not yet configured.');
+  if (Constants.executionEnvironment === 'storeClient') {
+    throw new Error('In-app purchases are not available in Expo Go. Please use a development build.');
+  }
+
+  const offerings = await Qonversion.getSharedInstance().offerings();
+  const product = offerings?.main?.products[0];
+  if (!product) throw new Error('No products available. Please try again later.');
+
+  const entitlements = await Qonversion.getSharedInstance().purchaseProduct(product, undefined);
+  return entitlements.get('premium')?.isActive ?? false;
 }
 
 export const PremiumUpsellModal: React.FC<PremiumUpsellModalProps> = ({
@@ -90,7 +96,7 @@ export const PremiumUpsellModal: React.FC<PremiumUpsellModalProps> = ({
             <Text style={styles.headerSubtitle}>
               {feature
                 ? `Unlock ${feature} and more`
-                : 'Unlock the full Price Scanner experience'}
+                : 'Unlock the full Scrimpr experience'}
             </Text>
           </LinearGradient>
 

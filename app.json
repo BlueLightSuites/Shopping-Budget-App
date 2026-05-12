@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Price Scanner",
-    "slug": "price-scanner-mobile",
+    "name": "Scrimpr",
+    "slug": "scrimpr",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,12 +17,14 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.bluelightsuites.scrimpr",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan barcodes for product information.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for audio feedback."
       }
     },
     "android": {
+      "package": "com.bluelightsuites.scrimpr",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -37,6 +39,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "expo-dev-client",
       "expo-camera",
       "expo-barcode-scanner",
       "expo-av",

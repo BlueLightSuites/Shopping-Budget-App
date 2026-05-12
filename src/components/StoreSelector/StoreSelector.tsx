@@ -12,6 +12,8 @@ import {
   SafeAreaView,
   StatusBar,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -112,6 +114,11 @@ const StoreSelector = () => {
       </LinearGradient>
 
       {/* Light content area */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -222,6 +229,7 @@ const StoreSelector = () => {
           </TouchableOpacity>
         )}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
 
     <PremiumUpsellModal

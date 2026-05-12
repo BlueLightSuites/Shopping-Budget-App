@@ -66,7 +66,7 @@ export default function HomeScreen() {
       {/* Dark navy header */}
       <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>
         <Ionicons name="scan" size={32} color="white" />
-        <Text style={styles.headerTitle}>Price Scanner</Text>
+        <Text style={styles.headerTitle}>Scrimpr</Text>
         <Text style={styles.headerSubtitle}>Smart Shopping Made Easy</Text>
       </LinearGradient>
 
