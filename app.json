@@ -17,14 +17,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bluelightsuites.scrimpr",
+      "bundleIdentifier": "com.bluelightsuitesllc.scrimpr",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan barcodes for product information.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for audio feedback."
       }
     },
     "android": {
-      "package": "com.bluelightsuites.scrimpr",
+      "package": "com.bluelightsuitesllc.scrimpr",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -41,7 +41,6 @@
     "plugins": [
       "expo-dev-client",
       "expo-camera",
-      "expo-barcode-scanner",
       "expo-av",
       "expo-font",
       "expo-asset"
