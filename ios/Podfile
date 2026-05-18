@@ -59,49 +59,11 @@ target 'Scrimpr' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
+    # Fix deployment target for pods that still declare a lower minimum (e.g. Qonversion)
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++20'
-        # Fix Swift compiler segfault on x86_64 with Xcode 16.4 whole-module-optimization
-        if config.name == 'Debug'
-          config.build_settings['SWIFT_COMPILATION_MODE'] = 'singlefile'
-        end
-        # Fix clang segfault (Segmentation fault: 11) on x86_64 with Xcode 16.4 / Apple clang 17.0.0
-        # Multiple stack overflow variants:
-        # 1. llvm::DIE::computeOffsetsAndAbbrevs - DWARF debug info generation overflow
-        # 2. clang::index::IndexingContext - index store generation overflow
-        # Both triggered by deeply nested C++ template/namespace types in React Native pods.
-        config.build_settings['GCC_OPTIMIZATION_LEVEL'] = '0'
-        config.build_settings['OTHER_CPLUSPLUSFLAGS'] = '$(inherited) -O0 -fno-inline-functions'
-        config.build_settings['GCC_GENERATE_DEBUGGING_SYMBOLS'] = 'NO'
-        config.build_settings['DWARF_DSYM_FILE_SHOULD_ACCOMPANY_PRODUCT'] = 'NO'
-        config.build_settings['COMPILER_INDEX_STORE_ENABLE'] = 'NO'
-      end
-    end
-
-    # Also write COMPILER_INDEX_STORE_ENABLE=NO to all pod xcconfig files so it cannot be
-    # overridden by the xcodebuild command-line default (which forces index-store generation).
-    # This fixes the clang stack overflow in IndexingContext on x86_64 + Xcode 16.4.
-    xcconfig_dir = File.join(__dir__, 'Pods', 'Target Support Files')
-    Dir.glob(File.join(xcconfig_dir, '**', '*.xcconfig')).each do |xcconfig_path|
-      content = File.read(xcconfig_path)
-      unless content.include?('COMPILER_INDEX_STORE_ENABLE')
-        File.open(xcconfig_path, 'a') { |f| f.puts "\nCOMPILER_INDEX_STORE_ENABLE = NO" }
-      end
-      unless content.include?('GCC_GENERATE_DEBUGGING_SYMBOLS')
-        File.open(xcconfig_path, 'a') { |f| f.puts "GCC_GENERATE_DEBUGGING_SYMBOLS = NO" }
-      end
-    end
-
-    # Fix EXConstants build phase script failing when project path contains spaces,
-    # and when get-app-config-ios.sh uses #!/usr/bin/env bash (bash not in Xcode PATH).
-    # Solution: run the script directly with /bin/bash, bypassing shebang resolution.
-    installer.pods_project.targets.each do |target|
-      if target.name == 'EXConstants'
-        target.shell_script_build_phases.each do |phase|
-          if phase.shell_script.include?('get-app-config-ios.sh')
-            phase.shell_script = '/bin/bash "$PODS_TARGET_SRCROOT/../scripts/get-app-config-ios.sh"'
-          end
+        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.1
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
         end
       end
     end
