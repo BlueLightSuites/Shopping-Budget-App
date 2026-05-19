@@ -6,14 +6,14 @@ import { StatusBar } from 'react-native';
 import { AdProvider } from './src/contexts/AdContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { useEffect } from 'react';
-import Qonversion, { QonversionConfigBuilder, LaunchMode, Environment } from 'react-native-qonversion';
+import Qonversion, { QonversionConfigBuilder, LaunchMode, Environment } from '@qonversion/react-native-sdk';
 import Constants from 'expo-constants';
 
 const QONVERSION_PROJECT_KEY = 'YOUR_QONVERSION_PROJECT_KEY'; // ← replace with your key from qonversion.io
 
 function PurchasesConfig() {
   useEffect(() => {
-    // react-native-qonversion requires a native build — it cannot run in Expo Go.
+    // @qonversion/react-native-sdk requires a native build — it cannot run in Expo Go.
     // Use `npx expo run:ios` or `eas build` to test in-app purchases.
     const isExpoGo = Constants.executionEnvironment === 'storeClient';
     if (isExpoGo) {

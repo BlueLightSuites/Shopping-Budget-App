@@ -10,7 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAds } from '@/contexts/AdContext';
-import Qonversion from 'react-native-qonversion';
+import Qonversion from '@qonversion/react-native-sdk';
 import Constants from 'expo-constants';
 
 interface PremiumUpsellModalProps {
