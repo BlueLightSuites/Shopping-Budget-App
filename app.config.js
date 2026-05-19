@@ -4,6 +4,7 @@ export default ({ config }) => ({
   ...config,
   extra: {
     ...config.extra,
+    QONVERSION_PROJECT_KEY: process.env.QONVERSION_PROJECT_KEY,
     KROGER_CLIENT_SECRET: process.env.KROGER_CLIENT_SECRET,
     KROGER_BASIC_TOKEN: process.env.KROGER_BASIC_TOKEN,
     WALMART_CONSUMER_ID: process.env.WALMART_CONSUMER_ID,

@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import Qonversion, { QonversionConfigBuilder, LaunchMode, Environment } from '@qonversion/react-native-sdk';
 import Constants from 'expo-constants';
 
-const QONVERSION_PROJECT_KEY = 'YOUR_QONVERSION_PROJECT_KEY'; // ← replace with your key from qonversion.io
+const QONVERSION_PROJECT_KEY = Constants.expoConfig?.extra?.QONVERSION_PROJECT_KEY ?? '';
 
 function PurchasesConfig() {
   useEffect(() => {
