@@ -229,10 +229,7 @@ const SettingsScreen = () => {
                 icon="help-circle"
                 title="Help & Support"
                 subtitle="Get help or contact support"
-                onPress={() => {
-                  // TODO: Navigate to help screen
-                  alert('Support contact: support@scrimpr.app');
-                }}
+                onPress={() => navigation.navigate('HelpSupport')}
               />
               <SettingItem
                 icon="shield-checkmark"

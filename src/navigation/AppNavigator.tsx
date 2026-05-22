@@ -12,6 +12,7 @@ import MainShoppingScreen from '../screens/MainShoppingScreen';
 import RecentTripsScreen from '../screens/RecentTripsScreen';
 import TripDetailScreen from '../screens/TripDetailScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import HelpSupportScreen from '../screens/HelpSupportScreen';
 import { BiometricProvider, useBiometric } from '../contexts/BiometricContext';
 import LockScreen from '../screens/LockScreen';
 import { useTheme } from '../contexts/ThemeContext';
@@ -85,6 +86,11 @@ function SettingsStack() {
         name="Settings" 
         component={SettingsScreen}
         options={{ title: 'Settings' }}
+      />
+      <Stack.Screen
+        name="HelpSupport"
+        component={HelpSupportScreen}
+        options={{ title: 'Help & Support' }}
       />
     </Stack.Navigator>
   );
