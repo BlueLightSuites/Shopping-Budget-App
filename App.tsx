@@ -21,8 +21,10 @@ function PurchasesConfig() {
       return;
     }
     try {
+      // Use SANDBOX for dev builds and TestFlight (preview). Switch to PRODUCTION before App Store release.
+      const isSandbox = __DEV__ || Constants.expoConfig?.extra?.EAS_BUILD_PROFILE === 'preview';
       const config = new QonversionConfigBuilder(QONVERSION_PROJECT_KEY, LaunchMode.SUBSCRIPTION_MANAGEMENT)
-        .setEnvironment(__DEV__ ? Environment.SANDBOX : Environment.PRODUCTION)
+        .setEnvironment(isSandbox ? Environment.SANDBOX : Environment.PRODUCTION)
         .build();
       Qonversion.initialize(config);
     } catch (e) {
