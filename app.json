@@ -2,6 +2,7 @@
   "expo": {
     "name": "Scrimpr",
     "slug": "scrimpr",
+    "owner": "blue-light-suites-llc",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -46,7 +47,10 @@
       "expo-asset"
     ],
     "extra": {
-      "KROGER_CLIENT_ID": "price-scanner-bbc668lf"
+      "KROGER_CLIENT_ID": "price-scanner-bbc668lf",
+      "eas": {
+        "projectId": "5528be22-e93e-4301-aa9b-2dbe6ba9ccaf"
+      }
     }
   }
 }

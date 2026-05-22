@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const PREMIUM_STORAGE_KEY = '@is_premium';
+import Constants from 'expo-constants';
+import Qonversion from '@qonversion/react-native-sdk';
 
 /** Number of trips visible to free-tier users in Recent Trips */
 export const FREE_TRIP_LIMIT = 3;
@@ -17,16 +16,26 @@ const AdContext = createContext<AdContextType | undefined>(undefined);
 export const AdProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isPremium, setIsPremiumState] = useState(false);
 
-  // Restore persisted premium status on mount
+  // On mount, verify premium entitlements directly from Qonversion (server-authoritative).
+  // Never rely solely on local storage — it can be tampered with on jailbroken devices.
   useEffect(() => {
-    AsyncStorage.getItem(PREMIUM_STORAGE_KEY).then((val) => {
-      if (val === 'true') setIsPremiumState(true);
-    });
+    const isExpoGo = Constants.executionEnvironment === 'storeClient';
+    if (isExpoGo) return; // Qonversion SDK not available in Expo Go
+    Qonversion.getSharedInstance()
+      .checkEntitlements()
+      .then((entitlements) => {
+        const active = entitlements.get('premium')?.isActive ?? false;
+        setIsPremiumState(active);
+      })
+      .catch((e) => {
+        console.warn('[AdContext] Could not verify entitlements:', e);
+        // Fail closed — default stays false (non-premium)
+      });
   }, []);
 
   const setPremium = (value: boolean) => {
+    // Optimistically update UI after a successful purchase; next launch re-verifies with Qonversion.
     setIsPremiumState(value);
-    AsyncStorage.setItem(PREMIUM_STORAGE_KEY, String(value));
   };
 
   const value: AdContextType = {

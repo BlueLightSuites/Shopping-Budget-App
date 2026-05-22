@@ -41,7 +41,6 @@ class ApiService {
 
   private async getOauthToken() {
     try{
-      console.log('Basic Token', KROGER_BASIC_TOKEN);
       const response = await this.oauthTokenApi.post(
         '/connect/oauth2/token',
         'grant_type=client_credentials&scope=product.compact',
@@ -52,7 +51,6 @@ class ApiService {
       },
       
     );
-      console.log('OAuth Token Response:', response.data);
       this.bearerToken = response.data.access_token;
       this.tokenExpiry = Date.now() + (response.data.expires_in * 1000);
 
@@ -78,6 +76,12 @@ class ApiService {
    */
   async getLocationIdByZip(zipCode: string): Promise<string | null> {
     try {
+      // Validate ZIP code format before sending to API
+      if (!/^\d{5}$/.test(zipCode.trim())) {
+        console.warn('Invalid ZIP code format:', zipCode);
+        return null;
+      }
+
       // Return cached value if already fetched
       if (locationId) return locationId;
 
@@ -88,7 +92,6 @@ class ApiService {
       const response = await this.api.get(
         `/locations?filter.zipCode.near=${zipCode}`
       );
-      console.log('Location ID response:', response);
       const responseData = response.data as any;
 
       if (responseData.data) {
