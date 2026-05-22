@@ -56,6 +56,16 @@ const StoreSelector = () => {
     });
   }, []);
 
+  // Pre-select the user's preferred store from Profile
+  useEffect(() => {
+    AsyncStorage.getItem('@profile_preferred_store').then((saved) => {
+      if (saved && saved !== 'none') {
+        const match = stores.find((s) => s.storeId === saved);
+        if (match) setSelectedStore(match.id);
+      }
+    });
+  }, []);
+
   const handleStoreSelect = (storeId: number) => {
     const selectedStoreId = stores.find((s) => s.id === storeId)?.storeId;
     // Block free users from picking a second store in the same trip

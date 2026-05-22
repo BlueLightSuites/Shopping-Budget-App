@@ -13,6 +13,7 @@ import RecentTripsScreen from '../screens/RecentTripsScreen';
 import TripDetailScreen from '../screens/TripDetailScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import HelpSupportScreen from '../screens/HelpSupportScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { BiometricProvider, useBiometric } from '../contexts/BiometricContext';
 import LockScreen from '../screens/LockScreen';
 import { useTheme } from '../contexts/ThemeContext';
@@ -91,6 +92,11 @@ function SettingsStack() {
         name="HelpSupport"
         component={HelpSupportScreen}
         options={{ title: 'Help & Support' }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: 'Profile' }}
       />
     </Stack.Navigator>
   );

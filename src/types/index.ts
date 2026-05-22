@@ -49,6 +49,7 @@ export type RootStackParamList = {
   MainShopping: { budget: number; zipCode: string; store: StoreId; stores?: StoreId[]; items: CartItem[] };
   Cart: { tripId: string };
   Settings: undefined;
+  Profile: undefined;
   HelpSupport: undefined;
   RecentTrips: undefined;
   TripDetail: { tripId: string };

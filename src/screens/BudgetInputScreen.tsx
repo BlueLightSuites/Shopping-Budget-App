@@ -36,6 +36,13 @@ export default function BudgetInputScreen() {
     else if (locale.includes('gb')) setCurrencySymbol('£');
   }, []);
 
+  // Pre-fill with the user's saved default budget from Profile
+  useEffect(() => {
+    AsyncStorage.getItem('@profile_default_budget').then((saved) => {
+      if (saved) setBudget(parseFloat(saved).toFixed(2));
+    });
+  }, []);
+
   const handleBudgetChange = (text: string) => {
     const cleaned = text.replace(/[^0-9.]/g, '');
     const parts = cleaned.split('.');

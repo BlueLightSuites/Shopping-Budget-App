@@ -155,19 +155,7 @@ const SettingsScreen = () => {
                 icon="person"
                 title="Profile"
                 subtitle="Manage your profile information"
-                onPress={() => {
-                  // TODO: Navigate to profile screen
-                  alert('Profile settings coming soon');
-                }}
-              />
-              <SettingItem
-                icon="lock-closed"
-                title="Password"
-                subtitle="Change your password"
-                onPress={() => {
-                  // TODO: Navigate to password change screen
-                  alert('Password settings coming soon');
-                }}
+                onPress={() => navigation.navigate('Profile')}
               />
             </View>
           </View>
