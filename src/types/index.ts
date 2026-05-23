@@ -54,4 +54,6 @@ export type RootStackParamList = {
   RecentTrips: undefined;
   TripDetail: { tripId: string };
   StoreSelector: { locationId?: string; budget: number; existingItems?: CartItem[]; visitedStores?: StoreId[] };
+  TermsOfService: undefined;
+  PrivacyPolicy: undefined;
 };

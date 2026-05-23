@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootStackParamList } from '../types';
+import OnboardingScreen, { TERMS_STORAGE_KEY, TERMS_VERSION } from '../screens/OnboardingScreen';
 import HomeScreen from '../screens/HomeScreen';
 import BudgetInputScreen from '../screens/BudgetInputScreen';
 import StoreSelectorScreen from '../components/StoreSelector/StoreSelector';
@@ -17,6 +19,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import { BiometricProvider, useBiometric } from '../contexts/BiometricContext';
 import LockScreen from '../screens/LockScreen';
 import { useTheme } from '../contexts/ThemeContext';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -98,6 +101,22 @@ function SettingsStack() {
         component={ProfileScreen}
         options={{ title: 'Profile' }}
       />
+      <Stack.Screen
+        name="TermsOfService"
+        options={{ headerShown: false }}
+      >
+        {({ navigation }) => (
+          <OnboardingScreen viewOnly onBack={() => navigation.goBack()} />
+        )}
+      </Stack.Screen>
+      <Stack.Screen
+        name="PrivacyPolicy"
+        options={{ headerShown: false }}
+      >
+        {({ navigation }) => (
+          <PrivacyPolicyScreen onBack={() => navigation.goBack()} />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }
@@ -105,6 +124,20 @@ function SettingsStack() {
 function AppContent() {
   const { isLocked } = useBiometric();
   const { colors } = useTheme();
+  const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(TERMS_STORAGE_KEY).then((value) => {
+      setTermsAccepted(value === TERMS_VERSION);
+    });
+  }, []);
+
+  // Still checking AsyncStorage — render nothing to avoid flash
+  if (termsAccepted === null) return null;
+
+  if (!termsAccepted) {
+    return <OnboardingScreen onAccept={() => setTermsAccepted(true)} />;
+  }
 
   if (isLocked) {
     return <LockScreen />;

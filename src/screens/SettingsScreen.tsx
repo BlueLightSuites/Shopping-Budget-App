@@ -13,6 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import Constants from 'expo-constants';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
 import { AdBanner } from '../components/AdBanner/AdBanner';
@@ -25,7 +26,8 @@ type SettingsNavigationProp = StackNavigationProp<RootStackParamList, 'Settings'
 
 const SettingsScreen = () => {
   const navigation = useNavigation<SettingsNavigationProp>();
-  const [notifications, setNotifications] = useState(true);
+  // TODO v2.0: Implement push notifications with deal alerts and shopping reminders
+  // This will require a backend + expo-notifications integration
   const { biometricEnabled, isSupported, toggleBiometric } = useBiometric();
   const { isPremium } = useAds();
   const { isDarkMode, toggleDarkMode, colors } = useTheme();
@@ -165,11 +167,11 @@ const SettingsScreen = () => {
             <Text style={styles.sectionTitle}>Preferences</Text>
             <View style={[styles.sectionContent, { backgroundColor: colors.card }]}>
               <ToggleSetting
-                icon="notifications"
-                title="Notifications"
-                subtitle="Receive shopping alerts and deals"
-                value={notifications}
-                onToggle={setNotifications}
+                icon="notifications-outline"
+                title="Notifications 🔜"
+                subtitle="Deal alerts & shopping reminders — coming soon!"
+                value={false}
+                onToggle={() => Alert.alert('Coming Soon', 'Push notifications with deal alerts and shopping reminders are coming in a future update!')}
               />
               <ToggleSetting
                 icon="moon"
@@ -205,12 +207,14 @@ const SettingsScreen = () => {
             <Text style={styles.sectionTitle}>App</Text>
             <View style={[styles.sectionContent, { backgroundColor: colors.card }]}>
               <SettingItem
-                icon="document-text"
+                icon="information-circle"
                 title="About"
-                subtitle="Version 1.0.0"
+                subtitle={`Version ${Constants.expoConfig?.version ?? '1.0.0'} (Build ${Constants.expoConfig?.ios?.buildNumber ?? Constants.expoConfig?.android?.versionCode ?? '1'})`}
                 onPress={() => {
-                  // TODO: Navigate to about screen
-                  alert('Scrimpr v1.0.0\n\nSmart Shopping Made Easy');
+                  Alert.alert(
+                    'Scrimpr',
+                    `Version ${Constants.expoConfig?.version ?? '1.0.0'}\n\nSmart Shopping Made Easy\n\n© ${new Date().getFullYear()} Blue Light Suites LLC`,
+                  );
                 }}
               />
               <SettingItem
@@ -223,11 +227,15 @@ const SettingsScreen = () => {
                 icon="shield-checkmark"
                 title="Privacy Policy"
                 subtitle="Read our privacy policy"
-                onPress={() => {
-                  // TODO: Open privacy policy
-                  alert('Opening privacy policy');
-                }}
+                onPress={() => navigation.navigate('PrivacyPolicy')}
               />
+              <SettingItem
+                icon="document-text"
+                title="Terms of Service"
+                subtitle="Read our terms of service"
+                onPress={() => navigation.navigate('TermsOfService')}
+              />
+
             </View>
           </View>
 
