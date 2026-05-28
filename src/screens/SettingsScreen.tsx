@@ -33,24 +33,6 @@ const SettingsScreen = () => {
   const { isDarkMode, toggleDarkMode, colors } = useTheme();
   const [showUpsell, setShowUpsell] = useState(false);
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: () => {
-            // TODO: Implement logout logic
-            alert('Logged out successfully');
-          },
-        },
-      ]
-    );
-  };
-
   const handleClearData = () => {
     Alert.alert(
       'Clear All Data',
@@ -253,14 +235,6 @@ const SettingsScreen = () => {
             </View>
           </View>
 
-          {/* Logout Section */}
-          <AdBanner size="medium" style={{ marginBottom: 16 }} />
-          <View style={styles.section}>
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <Ionicons name="log-out" size={24} color="white" />
-              <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </LinearGradient>
 
@@ -353,29 +327,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
     marginTop: 4,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FF6B6B',
-    borderRadius: 12,
-    paddingVertical: 16,
-    marginTop: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
-    marginLeft: 8,
   },
 });
 
