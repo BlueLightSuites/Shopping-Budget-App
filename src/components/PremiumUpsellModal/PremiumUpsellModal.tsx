@@ -30,7 +30,7 @@ const PREMIUM_FEATURES: { icon: string; text: string }[] = [
 
 /**
  * Initiates the in-app purchase flow via Qonversion.
- * Fetches the current offerings, purchases the first available product,
+ * Fetches products by ID, purchases using the recommended purchaseWithResult API,
  * and checks whether the 'premium' entitlement is active.
  */
 async function startPurchaseFlow(): Promise<boolean> {
@@ -38,12 +38,32 @@ async function startPurchaseFlow(): Promise<boolean> {
     throw new Error('In-app purchases are not available in Expo Go. Please use a development build.');
   }
 
-  const offerings = await Qonversion.getSharedInstance().offerings();
-  const product = offerings?.main?.products[0];
-  if (!product) throw new Error('No products available. Please try again later.');
+  // Fetch all configured products from the Qonversion dashboard.
+  const products = await Qonversion.getSharedInstance().products();
 
-  const entitlements = await Qonversion.getSharedInstance().purchaseProduct(product, undefined);
-  return entitlements.get('premium')?.isActive ?? false;
+  // Try to find the product by its Qonversion ID. Falls back to the first available product.
+  const product = products.get('premium') ?? products.get('main') ?? [...products.values()][0] ?? null;
+
+  if (!product) {
+    console.warn('[Qonversion] products() returned:', JSON.stringify([...products.entries()], null, 2));
+    throw new Error('No products available. Please check your Qonversion dashboard configuration.');
+  }
+
+  console.log('[Qonversion] Purchasing product:', product.qonversionId, '| Store ID:', product.storeId);
+
+  // Use the modern purchaseWithResult API (replaces deprecated purchaseProduct).
+  const result = await Qonversion.getSharedInstance().purchaseWithResult(product);
+
+  if (result.isSuccess) {
+    return result.entitlements?.get('premium')?.isActive ?? false;
+  } else if (result.isCanceled) {
+    throw new Error('Purchase was canceled.');
+  } else if (result.isPending) {
+    throw new Error('Purchase is pending approval (e.g. Ask to Buy). You will be granted access once approved.');
+  } else {
+    const errMsg = result.error?.description ?? 'Purchase failed. Please try again.';
+    throw new Error(errMsg);
+  }
 }
 
 export const PremiumUpsellModal: React.FC<PremiumUpsellModalProps> = ({
