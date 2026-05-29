@@ -9,6 +9,7 @@ import {
   Linking,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
@@ -145,6 +146,7 @@ export default function PrivacyPolicyScreen({ onBack }: Props) {
 
   return (
     <View style={[styles.gradient, { backgroundColor: p.background }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={p.background} />
       <SafeAreaView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -170,8 +172,8 @@ export default function PrivacyPolicyScreen({ onBack }: Props) {
             <Text style={[styles.bodyText, { color: p.textPrimary }]}>{PRIVACY_POLICY}</Text>
             <View style={styles.linkRow}>
               <Text style={[styles.linkNote, { color: p.textSecondary }]}>Questions? Email us at </Text>
-              <TouchableOpacity onPress={() => Linking.openURL('mailto:support@bluelightsuitesllc.com')}>
-                <Text style={styles.link}>support@bluelightsuitesllc.com</Text>
+              <TouchableOpacity onPress={() => Linking.openURL('mailto:bluelightsuitesllc+scrimpr@gmail.com')}>
+                <Text style={styles.link}>bluelightsuitesllc+scrimpr@gmail.com</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>

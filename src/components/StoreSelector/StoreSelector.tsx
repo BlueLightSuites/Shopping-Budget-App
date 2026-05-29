@@ -44,7 +44,7 @@ const StoreSelector = () => {
   const { budget, existingItems = [], visitedStores = [] } = route.params;
   const navigation = useNavigation<StoreLocatorNavigationProp>();
   const { isPremium } = useAds();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const [selectedStore, setSelectedStore] = useState<number | null>(null);
   const [zipCode, setZipCode] = useState('');
   const [showUpsell, setShowUpsell] = useState(false);
@@ -108,7 +108,7 @@ const StoreSelector = () => {
   return (
     <>
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
       {/* Dark navy header */}
       <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>

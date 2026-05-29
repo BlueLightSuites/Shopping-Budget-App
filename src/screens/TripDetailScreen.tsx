@@ -28,7 +28,7 @@ const storeColor = (s: StoreId) => (s === 'walmart' ? WALMART_COLOR : SMITHS_COL
 
 const TripDetailScreen = ({ route, navigation }: Props) => {
   const { tripId } = route.params;
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const [trip, setTrip] = useState<ShoppingTrip | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -66,7 +66,7 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={GREEN} />
         </View>
@@ -77,7 +77,7 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
   if (!trip) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
         <View style={styles.loadingContainer}>
           <Text style={[styles.errorText, { color: colors.textSecondary }]}>Trip not found.</Text>
         </View>
@@ -305,7 +305,7 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
       {/* Header */}
       <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>

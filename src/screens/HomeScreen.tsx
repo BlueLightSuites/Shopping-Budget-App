@@ -29,7 +29,7 @@ const isSmallScreen = width < 375;
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { isPremium } = useAds();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const [totalSaved, setTotalSaved] = useState(0);
   const [tripsThisMonth, setTripsThisMonth] = useState(0);
   const [totalTrips, setTotalTrips] = useState(0);
@@ -61,7 +61,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
       {/* Dark navy header */}
       <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>

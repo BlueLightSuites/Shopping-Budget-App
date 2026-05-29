@@ -111,7 +111,7 @@ const SettingsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
       <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>

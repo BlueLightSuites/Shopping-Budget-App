@@ -25,7 +25,7 @@ type BudgetInputScreenNavigationProp = StackNavigationProp<RootStackParamList, '
 
 export default function BudgetInputScreen() {
   const navigation = useNavigation<BudgetInputScreenNavigationProp>();
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const [budget, setBudget] = useState('100.00');
   const [currencySymbol, setCurrencySymbol] = useState('$');
 
@@ -68,7 +68,7 @@ export default function BudgetInputScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
       {/* Dark navy header */}
       <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>
