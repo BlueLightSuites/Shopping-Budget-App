@@ -23,6 +23,12 @@
       "env": {
         "EAS_BUILD_PROFILE": "production"
       }
+    },
+    "appstore": {
+      "autoIncrement": true,
+      "env": {
+        "EAS_BUILD_PROFILE": "appstore"
+      }
     }
   },
   "submit": {

@@ -21,8 +21,11 @@ function PurchasesConfig() {
       return;
     }
     try {
-      // Use SANDBOX for dev builds and TestFlight (preview). Switch to PRODUCTION before App Store release.
-      const isSandbox = __DEV__ || Constants.expoConfig?.extra?.EAS_BUILD_PROFILE === 'preview';
+      // Use SANDBOX for dev builds, TestFlight (preview & production), and Expo Go.
+      // TestFlight always uses Apple's sandbox IAP environment, even for production-profile builds.
+      // Only switch to PRODUCTION when the app is live on the App Store (EAS_BUILD_PROFILE === 'appstore').
+      const buildProfile = Constants.expoConfig?.extra?.EAS_BUILD_PROFILE;
+      const isSandbox = __DEV__ || buildProfile !== 'appstore';
       const config = new QonversionConfigBuilder(QONVERSION_PROJECT_KEY, LaunchMode.SUBSCRIPTION_MANAGEMENT)
         .setEnvironment(isSandbox ? Environment.SANDBOX : Environment.PRODUCTION)
         .build();
