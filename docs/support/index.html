@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scrimpr Support – Blue Light Suites</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #F1F5F9;
+      color: #1E293B;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0F172A, #1E3A5F);
+      color: white;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+
+    header .icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin-top: 8px;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 16px;
+      background: #10B981;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #64748B;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    /* Contact */
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid #F1F5F9;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+
+    .contact-item:last-child { border-bottom: none; }
+    .contact-item:hover { background: #F8FAFC; }
+
+    .contact-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .contact-icon.email { background: #DCFCE7; }
+    .contact-icon.store { background: #DBEAFE; }
+
+    .contact-label {
+      font-size: 0.75rem;
+      color: #94A3B8;
+      margin-bottom: 2px;
+    }
+
+    .contact-value {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #1E293B;
+    }
+
+    .chevron {
+      margin-left: auto;
+      color: #CBD5E1;
+      font-size: 18px;
+    }
+
+    /* FAQ */
+    details {
+      border-bottom: 1px solid #F1F5F9;
+    }
+
+    details:last-child { border-bottom: none; }
+
+    summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #1E293B;
+      cursor: pointer;
+      list-style: none;
+      gap: 12px;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    summary::after {
+      content: '＋';
+      color: #10B981;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    details[open] summary::after {
+      content: '－';
+    }
+
+    details[open] summary {
+      color: #10B981;
+    }
+
+    .faq-answer {
+      padding: 0 20px 18px;
+      font-size: 0.9rem;
+      color: #64748B;
+      line-height: 1.7;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 32px 20px;
+      font-size: 0.8rem;
+      color: #94A3B8;
+      border-top: 1px solid #E2E8F0;
+    }
+
+    footer a {
+      color: #10B981;
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="icon">🛒</div>
+  <h1>Scrimpr Support</h1>
+  <p>Smart Shopping Made Easy</p>
+  <span class="badge">Blue Light Suites LLC</span>
+</header>
+
+<main>
+
+  <!-- Contact -->
+  <section>
+    <h2>Contact Us</h2>
+    <div class="card">
+      <a class="contact-item" href="mailto:bluelightsuitesllc+scrimpr@gmail.com">
+        <div class="contact-icon email">✉️</div>
+        <div>
+          <div class="contact-label">Email Support</div>
+          <div class="contact-value">bluelightsuitesllc+scrimpr@gmail.com</div>
+        </div>
+        <span class="chevron">›</span>
+      </a>
+      <a class="contact-item" href="https://apps.apple.com/app/id6768889539" target="_blank" rel="noopener">
+        <div class="contact-icon store">🍎</div>
+        <div>
+          <div class="contact-label">Download on</div>
+          <div class="contact-value">App Store</div>
+        </div>
+        <span class="chevron">›</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <h2>Frequently Asked Questions</h2>
+    <div class="card">
+
+      <details>
+        <summary>Why isn't my barcode being recognized?</summary>
+        <p class="faq-answer">Some products may not be in our database yet. Try scanning in good lighting and holding your phone steady. If the barcode still isn't found, you can add the item manually using the "Add Manually" option.</p>
+      </details>
+
+      <details>
+        <summary>How does the budget work?</summary>
+        <p class="faq-answer">Enter your budget before starting a shopping trip. As you scan items, the app tracks your running total and alerts you when you're approaching or over your limit.</p>
+      </details>
+
+      <details>
+        <summary>Which stores are supported?</summary>
+        <p class="faq-answer">Scrimpr currently supports Walmart and Kroger/Smith's for real-time pricing. More stores will be added in the future.</p>
+      </details>
+
+      <details>
+        <summary>What is Scrimpr Premium?</summary>
+        <p class="faq-answer">Premium removes ads, unlocks biometric login, and gives you unlimited trip history. You can upgrade from the Settings screen inside the app.</p>
+      </details>
+
+      <details>
+        <summary>How do I restore my premium purchase?</summary>
+        <p class="faq-answer">Go to Settings → Upgrade to Premium and tap "Restore Purchases". Make sure you're signed in with the same Apple ID used for the original purchase.</p>
+      </details>
+
+      <details>
+        <summary>Is my data stored in the cloud?</summary>
+        <p class="faq-answer">All your shopping trips are stored locally on your device. No account is required and your data never leaves your phone.</p>
+      </details>
+
+      <details>
+        <summary>How do I delete my data?</summary>
+        <p class="faq-answer">Go to Settings → Clear All Data. This permanently removes all saved trips from your device.</p>
+      </details>
+
+    </div>
+  </section>
+
+  <!-- Legal -->
+  <section>
+    <h2>Legal</h2>
+    <div class="card">
+      <a class="contact-item" href="https://bluelightsuites.com/privacy">
+        <div class="contact-icon email">🔒</div>
+        <div>
+          <div class="contact-label">Read our</div>
+          <div class="contact-value">Privacy Policy</div>
+        </div>
+        <span class="chevron">›</span>
+      </a>
+      <a class="contact-item" href="https://bluelightsuites.com/terms">
+        <div class="contact-icon store">📄</div>
+        <div>
+          <div class="contact-label">Read our</div>
+          <div class="contact-value">Terms of Service</div>
+        </div>
+        <span class="chevron">›</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>&copy; 2026 Blue Light Suites LLC &nbsp;·&nbsp; <a href="https://bluelightsuites.com">bluelightsuites.com</a></p>
+</footer>
+
+</body>
+</html>
