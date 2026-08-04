@@ -250,11 +250,11 @@ PODS:
   - hermes-engine (0.81.5):
     - hermes-engine/Pre-built (= 0.81.5)
   - hermes-engine/Pre-built (0.81.5)
-  - Qonversion (6.11.0):
-    - Qonversion/Main (= 6.11.0)
-  - qonversion-react-native-sdk (10.8.0):
+  - Qonversion (6.14.0):
+    - Qonversion/Main (= 6.14.0)
+  - qonversion-react-native-sdk (10.11.0):
     - hermes-engine
-    - QonversionSandwich (= 7.9.0)
+    - QonversionSandwich (= 7.12.0)
     - RCTRequired
     - RCTTypeSafety
     - React-Core
@@ -275,9 +275,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - Qonversion/Main (6.11.0)
-  - QonversionSandwich (7.9.0):
-    - Qonversion (= 6.11.0)
+  - Qonversion/Main (6.14.0)
+  - QonversionSandwich (7.12.0):
+    - Qonversion (= 6.14.0)
   - RCTDeprecation (0.81.5)
   - RCTRequired (0.81.5)
   - RCTTypeSafety (0.81.5):
@@ -2557,9 +2557,9 @@ SPEC CHECKSUMS:
   EXUpdatesInterface: 1436757deb0d574b84bba063bd024c315e0ec08b
   FBLazyVector: e95a291ad2dadb88e42b06e0c5fb8262de53ec12
   hermes-engine: 9f4dfe93326146a1c99eb535b1cb0b857a3cd172
-  Qonversion: 4744b527e557e455fcb81525b59f18f249c0c83f
-  qonversion-react-native-sdk: 7cb088ab39ddb226d216eb28a85d12088fd90986
-  QonversionSandwich: 5bc74cb96b8be8f8bfa51b64dffc4946cec6e04d
+  Qonversion: 13339f4ee9982825725d1c650653c6e8dafec1aa
+  qonversion-react-native-sdk: d3180f8a6d1eaeb85da7cfc566141a0b2b2826f7
+  QonversionSandwich: 0af749be5bb55ec323d942452f7117b2800b0089
   RCTDeprecation: 943572d4be82d480a48f4884f670135ae30bf990
   RCTRequired: 8f3cfc90cc25cf6e420ddb3e7caaaabc57df6043
   RCTTypeSafety: 16a4144ca3f959583ab019b57d5633df10b5e97c
