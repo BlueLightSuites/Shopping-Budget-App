@@ -89,9 +89,9 @@ export default function ScanViewScreen() {
     } else {
       // Kroger / Smith's: normalize to 13-digit EAN-13 format.
       // expo-camera returns UPC-A as 12 digits and EAN-13 as 13 digits.
-      // Padding to 13 with a leading zero correctly converts UPC-A → EAN-13.
-      // trim() guards against any trailing whitespace / null byte from the scanner.
-      formattedBarcode = data.trim().padStart(13, '0');
+      // Strip any whitespace or null bytes, then left-pad with zeros to exactly 13 digits.
+      const cleaned = data.replace(/\D/g, '');
+      formattedBarcode = cleaned.padStart(13, '0').slice(-13);
     }
 
     console.log('Formatted barcode:', formattedBarcode);
