@@ -24,7 +24,7 @@ export const AdProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     Qonversion.getSharedInstance()
       .checkEntitlements()
       .then((entitlements) => {
-        const active = entitlements.get('premium')?.isActive ?? false;
+        const active = entitlements.get('premium_access')?.isActive ?? false;
         setIsPremiumState(active);
       })
       .catch((e) => {

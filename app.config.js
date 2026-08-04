@@ -1,7 +1,19 @@
 // Dynamic Expo config — reads secrets from .env (never commit .env to git).
 // Expo automatically loads .env during `expo start` and `eas build`.
-export default ({ config }) => ({
+export default ({ config }) => {
+  const isDev = process.env.EAS_BUILD_PROFILE === 'development' || process.env.APP_VARIANT === 'development';
+  const bundleSuffix = isDev ? '.dev' : '';
+
+  return {
   ...config,
+  ios: {
+    ...config.ios,
+    bundleIdentifier: `com.bluelightsuitesllc.scrimpr${bundleSuffix}`,
+  },
+  android: {
+    ...config.android,
+    package: `com.bluelightsuitesllc.scrimpr${bundleSuffix}`,
+  },
   extra: {
     ...config.extra,
     QONVERSION_PROJECT_KEY: process.env.QONVERSION_PROJECT_KEY,
@@ -12,4 +24,5 @@ export default ({ config }) => ({
     WALMART_KEY_VERSION: process.env.WALMART_KEY_VERSION,
     WALMART_PRIVATE_KEY_BASE64: process.env.WALMART_PRIVATE_KEY_BASE64,
   },
-});
+  };
+};

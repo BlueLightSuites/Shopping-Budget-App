@@ -21,11 +21,12 @@ function PurchasesConfig() {
       return;
     }
     try {
-      // Use SANDBOX for dev builds, TestFlight (preview & production), and Expo Go.
-      // TestFlight always uses Apple's sandbox IAP environment, even for production-profile builds.
-      // Only switch to PRODUCTION when the app is live on the App Store (EAS_BUILD_PROFILE === 'appstore').
-      const buildProfile = Constants.expoConfig?.extra?.EAS_BUILD_PROFILE;
-      const isSandbox = __DEV__ || buildProfile !== 'appstore';
+      // Use SANDBOX only for local dev builds (__DEV__ === true).
+      // For ALL signed builds — including TestFlight (preview/production profiles) and the App Store —
+      // use PRODUCTION. TestFlight uses production-signed certificates and Apple automatically routes
+      // IAP to its sandbox environment; explicitly setting Environment.SANDBOX on a TestFlight build
+      // conflicts with that and causes QONErrorCodeProductNotFound (error 2).
+      const isSandbox = __DEV__;
       const config = new QonversionConfigBuilder(QONVERSION_PROJECT_KEY, LaunchMode.SUBSCRIPTION_MANAGEMENT)
         .setEnvironment(isSandbox ? Environment.SANDBOX : Environment.PRODUCTION)
         .build();

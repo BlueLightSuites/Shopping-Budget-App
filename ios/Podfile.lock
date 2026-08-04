@@ -250,8 +250,6 @@ PODS:
   - hermes-engine (0.81.5):
     - hermes-engine/Pre-built (= 0.81.5)
   - hermes-engine/Pre-built (0.81.5)
-  - PurchasesHybridCommon (18.4.0):
-    - RevenueCat (= 5.70.0)
   - Qonversion (6.11.0):
     - Qonversion/Main (= 6.11.0)
   - qonversion-react-native-sdk (10.8.0):
@@ -1978,7 +1976,6 @@ PODS:
     - React-utils (= 0.81.5)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.81.5)
-  - RevenueCat (5.70.0)
   - RNCAsyncStorage (2.2.0):
     - hermes-engine
     - RCTRequired
@@ -2023,9 +2020,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNPurchases (10.1.0):
-    - PurchasesHybridCommon (= 18.4.0)
-    - React-Core
   - RNReanimated (4.1.5):
     - hermes-engine
     - RCTRequired
@@ -2147,11 +2141,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNSound (0.11.2):
-    - React-Core
-    - RNSound/Core (= 0.11.2)
-  - RNSound/Core (0.11.2):
-    - React-Core
   - RNVectorIcons (10.3.0):
     - hermes-engine
     - RCTRequired
@@ -2174,7 +2163,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNWorklets (0.5.1):
+  - RNWorklets (0.6.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2196,9 +2185,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNWorklets/worklets (= 0.5.1)
+    - RNWorklets/worklets (= 0.6.0)
     - Yoga
-  - RNWorklets/worklets (0.5.1):
+  - RNWorklets/worklets (0.6.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2220,9 +2209,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNWorklets/worklets/apple (= 0.5.1)
+    - RNWorklets/worklets/apple (= 0.6.0)
     - Yoga
-  - RNWorklets/worklets/apple (0.5.1):
+  - RNWorklets/worklets/apple (0.6.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2343,20 +2332,16 @@ DEPENDENCIES:
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
-  - RNPurchases (from `../node_modules/react-native-purchases`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - RNSound (from `../node_modules/react-native-sound`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWorklets (from `../node_modules/react-native-worklets`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
-    - PurchasesHybridCommon
     - Qonversion
     - QonversionSandwich
-    - RevenueCat
     - ZXingObjC
 
 EXTERNAL SOURCES:
@@ -2539,14 +2524,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
-  RNPurchases:
-    :path: "../node_modules/react-native-purchases"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNSound:
-    :path: "../node_modules/react-native-sound"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   RNWorklets:
@@ -2576,7 +2557,6 @@ SPEC CHECKSUMS:
   EXUpdatesInterface: 1436757deb0d574b84bba063bd024c315e0ec08b
   FBLazyVector: e95a291ad2dadb88e42b06e0c5fb8262de53ec12
   hermes-engine: 9f4dfe93326146a1c99eb535b1cb0b857a3cd172
-  PurchasesHybridCommon: 2cd3e4b74c60f5a61603d78e4071274217cd9f6b
   Qonversion: 4744b527e557e455fcb81525b59f18f249c0c83f
   qonversion-react-native-sdk: 7cb088ab39ddb226d216eb28a85d12088fd90986
   QonversionSandwich: 5bc74cb96b8be8f8bfa51b64dffc4946cec6e04d
@@ -2645,15 +2625,12 @@ SPEC CHECKSUMS:
   ReactCodegen: 4c44b74b77fc41ae25b9e2c7e9bd6e2bc772c23f
   ReactCommon: e6e232202a447d353e5531f2be82f50f47cbaa9a
   ReactNativeDependencies: 71ce9c28beb282aa720ea7b46980fff9669f428a
-  RevenueCat: f30d8ee4fd36ce56afa40923d314239761eb58a2
   RNCAsyncStorage: e85a99325df9eb0191a6ee2b2a842644c7eb29f4
   RNGestureHandler: 6a488ce85c88e82d8610db1108daf04e9b2d5162
-  RNPurchases: 617c1e3c17253e3391d05e778ea53045fc4fdb71
   RNReanimated: 00771d2ba7c810124852092eb29c0d1edf50cc58
   RNScreens: dd61bc3a3e6f6901ad833efa411917d44827cf51
-  RNSound: 6c156f925295bdc83e8e422e7d8b38d33bc71852
   RNVectorIcons: af977c18ed27deba54ed038b439fca2911a08cfc
-  RNWorklets: 28ee7370ca8da356fcc914e3e68b97e9752196d2
+  RNWorklets: 87e1a6b5f88d19f3c34be25f82b37c4344b8657c
   Yoga: 5934998fbeaef7845dbf698f698518695ab4cd1a
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 

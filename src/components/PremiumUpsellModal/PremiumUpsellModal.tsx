@@ -42,7 +42,7 @@ async function startPurchaseFlow(): Promise<boolean> {
   const products = await Qonversion.getSharedInstance().products();
 
   // Try to find the product by its Qonversion ID. Falls back to the first available product.
-  const product = products.get('premium') ?? products.get('main') ?? [...products.values()][0] ?? null;
+  const product = products.get('Scrimpr001') ?? products.get('premium_access') ?? [...products.values()][0] ?? null;
 
   if (!product) {
     console.warn('[Qonversion] products() returned:', JSON.stringify([...products.entries()], null, 2));
@@ -55,7 +55,7 @@ async function startPurchaseFlow(): Promise<boolean> {
   const result = await Qonversion.getSharedInstance().purchaseWithResult(product);
 
   if (result.isSuccess) {
-    return result.entitlements?.get('premium')?.isActive ?? false;
+    return result.entitlements?.get('premium_access')?.isActive ?? false;
   } else if (result.isCanceled) {
     throw new Error('Purchase was canceled.');
   } else if (result.isPending) {

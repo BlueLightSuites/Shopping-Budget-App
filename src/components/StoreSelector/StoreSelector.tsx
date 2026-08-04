@@ -233,7 +233,7 @@ const StoreSelector = () => {
               style={styles.ctaGradient}
             >
               {/* <Ionicons name="cart-outline" size={22} color="white" /> */}
-              <Text style={styles.ctaText}>Start Shopping</Text>
+              {/* <Text style={styles.ctaText}>Start Shopping</Text> */}
               {/* <Ionicons name="arrow-forward" size={20} color="white" /> */}
             </LinearGradient>
           </TouchableOpacity>

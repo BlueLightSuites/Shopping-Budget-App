@@ -107,8 +107,9 @@ class ApiService {
   }
 
   /**
-   * Search for a product by barcode
-   * Tries Kroger API first, then falls back to Walmart API
+   * Search for a product by barcode using the Kroger API.
+   * Uses /products/{upc}?filter.locationId={locationId} to get
+   * store-specific pricing for the user's area.
    */
   async searchProductByBarcode(
     barcode: string,
@@ -119,17 +120,19 @@ class ApiService {
         await this.getOauthToken();
       }
 
-      const krogerResponse = await this.api.get(
-        `/products?filter.term=${barcode}&filter.locationId=${locationId || ''}`
-      );
-      const krogerData = krogerResponse.data as any;
+      const url = locationId
+        ? `/products/${barcode}?filter.locationId=${locationId}`
+        : `/products/${barcode}`;
 
-      if (krogerData.data && Array.isArray(krogerData.data) && krogerData.data.length > 0) {
-        const krogerProduct = krogerData.data[0];
+      const response = await this.api.get(url);
+      const data = response.data as any;
+
+      // /products/{upc} returns a single object under data, not an array
+      if (data.data) {
         return {
           success: true,
           barcode,
-          product: this.mapKrogerProductToProduct(krogerProduct, barcode),
+          product: this.mapKrogerProductToProduct(data.data, barcode),
         };
       }
 
