@@ -228,14 +228,16 @@ const StoreSelector = () => {
             disabled={!zipCode.trim()}
             activeOpacity={0.85}
           >
+
             <LinearGradient
               colors={zipCode.trim() ? ['#10B981', '#059669'] : ['#CBD5E1', '#CBD5E1']}
               style={styles.ctaGradient}
             >
               {/* <Ionicons name="cart-outline" size={22} color="white" /> */}
-              {/* <Text style={styles.ctaText}>Start Shopping</Text> */}
+              <Text style={styles.ctaText}>Start Shopping</Text>
               {/* <Ionicons name="arrow-forward" size={20} color="white" /> */}
             </LinearGradient>
+            {/* <Text style={styles.ctaText}>Start Shopping</Text> */}
           </TouchableOpacity>
         )}
       </ScrollView>

@@ -58,6 +58,9 @@ export default function ScanViewScreen() {
   const [showUnrecognizedModal, setShowUnrecognizedModal] = useState(false);
   const [scannedProduct, setScannedProduct] = useState<any>(null);
   const [scannedBarcode, setScannedBarcode] = useState<string>('');
+  // Separate state for the resolved/formatted barcode to display in the modal.
+  // Must NOT be in the useEffect deps — updating it should not re-trigger a scan.
+  const [resolvedBarcode, setResolvedBarcode] = useState<string>('');
 
   useEffect(() => {
     if (!permission?.granted && permission?.canAskAgain) {
@@ -83,15 +86,17 @@ export default function ScanViewScreen() {
 
     console.log('Raw barcode scanned:', data);
 
+    // Strip whitespace/null bytes and non-digit characters
+    const cleaned = data.replace(/[\s\0]/g, '').replace(/\D/g, '');
+
     let formattedBarcode: string;
     if (store === 'walmart') {
-      formattedBarcode = data;
+      // Walmart expects the raw UPC (typically 12-digit UPC-A)
+      formattedBarcode = cleaned;
     } else {
-      // Kroger / Smith's: normalize to 13-digit EAN-13 format.
-      // expo-camera returns UPC-A as 12 digits and EAN-13 as 13 digits.
-      // Strip any whitespace or null bytes, then left-pad with zeros to exactly 13 digits.
-      const cleaned = data.replace(/\D/g, '');
-      formattedBarcode = cleaned.padStart(13, '0').slice(-13);
+      // Kroger / Smith's: pass the cleaned barcode as-is.
+      // api.ts will automatically retry with the alternate 12/13 digit format if needed.
+      formattedBarcode = cleaned;
     }
 
     console.log('Formatted barcode:', formattedBarcode);
@@ -105,7 +110,7 @@ export default function ScanViewScreen() {
 
   // Fires the API lookup only after React has committed the loading state to the UI
   useEffect(() => {
-    if (!loading || !scannedBarcode) return;
+    if (!scannedBarcode) return;
 
     const doSearch = async () => {
       try {
@@ -119,8 +124,10 @@ export default function ScanViewScreen() {
           console.log('Got location ID:', locationId);
           result = await apiService.searchProductByBarcode(scannedBarcode, locationId);
         }
-
         console.log('Search result:', result);
+        // Store the resolved barcode format for display in the modal
+        // (uses setResolvedBarcode, NOT setScannedBarcode, to avoid re-triggering this effect)
+        setResolvedBarcode(result.barcode || scannedBarcode);
         if (result.success && result.product) {
           setScannedProduct(result.product);
           setTimeout(() => setShowItemModal(true), 50);
@@ -144,7 +151,7 @@ export default function ScanViewScreen() {
     };
 
     doSearch();
-  }, [scannedBarcode, loading]);
+  }, [scannedBarcode]); // scannedBarcode changes only when a new scan occurs
 
   const handleFlashToggle = () => {
     setFlash(flash === 'off' ? 'on' : 'off');
@@ -210,6 +217,7 @@ export default function ScanViewScreen() {
     setTimeout(() => {
       setScanned(false);
       setScannedBarcode('');
+      setResolvedBarcode('');
     }, 1000);
   };
 
@@ -225,6 +233,7 @@ export default function ScanViewScreen() {
     setTimeout(() => {
       setScanned(false);
       setScannedBarcode('');
+      setResolvedBarcode('');
     }, 500);
   };
 
@@ -352,7 +361,7 @@ export default function ScanViewScreen() {
       {/* Unrecognized Barcode Modal */}
       <UnrecognizedBarcodeModal
         visible={showUnrecognizedModal}
-        barcode={scannedBarcode}
+        barcode={resolvedBarcode || scannedBarcode}
         onAdd={handleUnrecognizedItemAdded}
         onDismiss={handleUnrecognizedDismissed}
       />

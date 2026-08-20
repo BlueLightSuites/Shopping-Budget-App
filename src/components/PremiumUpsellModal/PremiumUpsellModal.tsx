@@ -41,8 +41,16 @@ async function startPurchaseFlow(): Promise<boolean> {
   // Fetch all configured products from the Qonversion dashboard.
   const products = await Qonversion.getSharedInstance().products();
 
-  // Try to find the product by its Qonversion ID. Falls back to the first available product.
-  const product = products.get('Scrimpr001') ?? products.get('premium_access') ?? [...products.values()][0] ?? null;
+  // Log all available products to help debug mismatches.
+  console.log('[Qonversion] Available products:', JSON.stringify([...products.entries()].map(([k, v]) => ({
+    qonversionId: k,
+    storeId: v.storeId,
+    type: v.type,
+  })), null, 2));
+
+  // Look up by the subscription's Qonversion product ID.
+  // Update 'scrimpr_premium' below to match the exact ID set in your Qonversion dashboard.
+  const product = products.get('scrimpr_premium') ?? [...products.values()][0] ?? null;
 
   if (!product) {
     console.warn('[Qonversion] products() returned:', JSON.stringify([...products.entries()], null, 2));

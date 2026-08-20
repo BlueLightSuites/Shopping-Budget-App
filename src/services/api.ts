@@ -120,20 +120,50 @@ class ApiService {
         await this.getOauthToken();
       }
 
-      const url = locationId
-        ? `/products/${barcode}?filter.locationId=${locationId}`
-        : `/products/${barcode}`;
+      // Build a list of barcode formats to try.
+      //
+      // Kroger product IDs are the barcode's data digits WITHOUT the trailing check digit,
+      // left-padded to 13 digits. For example:
+      //   UPC-A scan  → 12 digits (e.g. "039000045040")
+      //   Drop last   → 11 digits ("03900004504")
+      //   Pad to 13   → "0003900004504"  ← Kroger product ID
+      //
+      // So the canonical approach is: strip check digit (last digit), pad to 13.
+      // We also try the raw padded value as a fallback in case the scanner already
+      // omitted the check digit or returned an EAN-13 without one.
+      const cleaned = barcode.replace(/\D/g, '');
+      const withoutCheckDigit = cleaned.slice(0, -1).padStart(13, '0'); // drop last digit, pad to 13
+      const paddedRaw = cleaned.padStart(13, '0');                      // pad raw value to 13
 
-      const response = await this.api.get(url);
-      const data = response.data as any;
+      // Deduplicate and order: check-digit-stripped version first (most likely match)
+      const barcodesToTry = [...new Set([withoutCheckDigit, paddedRaw, cleaned])];
 
-      // /products/{upc} returns a single object under data, not an array
-      if (data.data) {
-        return {
-          success: true,
-          barcode,
-          product: this.mapKrogerProductToProduct(data.data, barcode),
-        };
+      for (const candidate of barcodesToTry) {
+        const url = locationId
+          ? `/products/${candidate}?filter.locationId=${locationId}`
+          : `/products/${candidate}`;
+
+        console.log(`Trying Kroger barcode: ${candidate}`);
+
+        try {
+          const response = await this.api.get(url);
+          const data = response.data as any;
+
+          if (data.data) {
+            return {
+              success: true,
+              barcode: candidate,
+              product: this.mapKrogerProductToProduct(data.data, candidate),
+            };
+          }
+        } catch (innerError) {
+          const axiosError = innerError as AxiosError<ApiError>;
+          // 404 means not found with this format — try the next candidate
+          if (axiosError.response?.status !== 404) {
+            throw innerError; // Re-throw non-404 errors (auth, network, etc.)
+          }
+          console.log(`Kroger 404 for barcode ${candidate}, trying alternate format…`);
+        }
       }
 
       return {
@@ -269,17 +299,28 @@ class ApiService {
       }
 
       const productImage = krogerProduct.images?.find((img: any) => img.perspective === 'front');
-      const imageUrl = productImage?.sizes?.[3]?.url;
+      // Kroger sizes array contains objects with a "size" name field — prefer large, fallback down
+      const preferredSizes = ['large', 'medium', 'small', 'thumbnail', 'xlarge'];
+      let imageUrl: string | undefined;
+      if (productImage?.sizes) {
+        for (const sizeName of preferredSizes) {
+          const found = productImage.sizes.find((s: any) => s.size === sizeName);
+          if (found?.url) { imageUrl = found.url; break; }
+        }
+      }
+
+      const regularPrice = krogerProduct.items?.[0]?.price?.regular ?? 0;
+      const promoPrice = krogerProduct.items?.[0]?.price?.promo ?? 0;
 
       return {
         id: krogerProduct.productId || '',
-      name: krogerProduct.description || 'Unknown Product',
-      price: krogerProduct.items?.[0]?.price?.regular || krogerProduct.items?.[0]?.price?.promo || 0,
+        name: krogerProduct.description || 'Unknown Product',
+        price: regularPrice || promoPrice || 0,
         barcode: krogerProduct.upc || barcode,
-      image: imageUrl,
-      description: krogerProduct.description,
-      brand: krogerProduct.brand,
-      category: krogerProduct.categories?.[0],
+        image: imageUrl,
+        description: krogerProduct.description,
+        brand: krogerProduct.brand,
+        category: krogerProduct.categories?.[0],
       };
     } catch (error) {
       console.error('Error mapping Kroger product:', error);

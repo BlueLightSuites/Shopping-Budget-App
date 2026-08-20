@@ -14,18 +14,21 @@
     "preview": {
       "distribution": "store",
       "autoIncrement": true,
+      "environment": "production",
       "env": {
         "EAS_BUILD_PROFILE": "preview"
       }
     },
     "production": {
       "autoIncrement": true,
+      "environment": "production",
       "env": {
         "EAS_BUILD_PROFILE": "production"
       }
     },
     "appstore": {
       "autoIncrement": true,
+      "environment": "production",
       "env": {
         "EAS_BUILD_PROFILE": "appstore"
       }
