@@ -29,6 +29,7 @@ android/app/build/
 android/build/
 ios/build/
 **/Build/
+*.ipa
 
 # CocoaPods
 ios/Pods/

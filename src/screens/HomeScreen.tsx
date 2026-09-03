@@ -8,6 +8,7 @@ import {
   StatusBar,
   Dimensions,
   ScrollView,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -65,7 +66,7 @@ export default function HomeScreen() {
 
       {/* Dark navy header */}
       <LinearGradient colors={['#0F172A', '#1E3A5F']} style={styles.header}>
-        <Ionicons name="scan" size={32} color="white" />
+        <Image source={require('../../assets/scrimpr_app_icon_1024.png')} style={styles.logo} />
         <Text style={styles.headerTitle}>Scrimpr</Text>
         <Text style={styles.headerSubtitle}>Smart Shopping Made Easy</Text>
       </LinearGradient>
@@ -213,6 +214,11 @@ const styles = StyleSheet.create({
     paddingTop: 36,
     paddingBottom: 32,
     paddingHorizontal: 24,
+  },
+  logo: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
   },
   headerTitle: {
     fontSize: 24,

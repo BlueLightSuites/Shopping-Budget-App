@@ -5,7 +5,7 @@
     "owner": "blue-light-suites-llc",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/scrimpr_app_icon_1024.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -27,9 +27,9 @@
     "android": {
       "package": "com.bluelightsuitesllc.scrimpr",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      },
+          "foregroundImage": "./assets/scrimpr_app_icon_1024.png",
+          "backgroundColor": "#FFFFFF"
+        },
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
@@ -37,7 +37,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/scrimpr_app_icon_1024.png"
     },
     "plugins": [
       "expo-dev-client",
