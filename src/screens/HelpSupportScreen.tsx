@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -104,6 +105,7 @@ const FAQItem = ({
 const HelpSupportScreen = () => {
   const navigation = useNavigation();
   const { colors, isDarkMode } = useTheme();
+  const responsiveContentStyle = useResponsiveContentStyle();
 
   const handleEmail = async () => {
     const url = `mailto:${SUPPORT_EMAIL}?subject=Scrimpr%20Support%20Request`;
@@ -164,7 +166,7 @@ const HelpSupportScreen = () => {
 
         <ScrollView
           style={styles.content}
-          contentContainerStyle={styles.contentContainer}
+          contentContainerStyle={[styles.contentContainer, responsiveContentStyle]}
           showsVerticalScrollIndicator={false}
         >
           {/* FAQ Section */}

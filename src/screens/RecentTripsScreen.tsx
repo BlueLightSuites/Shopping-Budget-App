@@ -19,6 +19,7 @@ import { loadTrips } from '../utilities/tripStorage';
 import { useAds, FREE_TRIP_LIMIT } from '../contexts/AdContext';
 import { PremiumUpsellModal } from '../components/PremiumUpsellModal/PremiumUpsellModal';
 import { useTheme } from '../contexts/ThemeContext';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 type RecentTripsNavigationProp = StackNavigationProp<RootStackParamList, 'RecentTrips'>;
 
@@ -28,6 +29,7 @@ const RecentTripsScreen = () => {
   const navigation = useNavigation<RecentTripsNavigationProp>();
   const { isPremium } = useAds();
   const { colors, isDarkMode } = useTheme();
+  const responsiveContentStyle = useResponsiveContentStyle();
   const [trips, setTrips] = useState<ShoppingTrip[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -246,7 +248,7 @@ const RecentTripsScreen = () => {
             return `trip-${item.trip.id}-${index}`;
           }}
           renderItem={renderRow}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, responsiveContentStyle]}
           showsVerticalScrollIndicator={false}
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.3}

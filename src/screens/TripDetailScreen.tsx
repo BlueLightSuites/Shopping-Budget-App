@@ -15,6 +15,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList, ShoppingTrip, CartItem, StoreId } from '../types';
 import { loadTrips } from '../utilities/tripStorage';
 import { useTheme } from '../contexts/ThemeContext';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 type Props = StackScreenProps<RootStackParamList, 'TripDetail'>;
 
@@ -29,6 +30,7 @@ const storeColor = (s: StoreId) => (s === 'walmart' ? WALMART_COLOR : SMITHS_COL
 const TripDetailScreen = ({ route, navigation }: Props) => {
   const { tripId } = route.params;
   const { colors, isDarkMode } = useTheme();
+  const responsiveContentStyle = useResponsiveContentStyle();
   const [trip, setTrip] = useState<ShoppingTrip | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -327,7 +329,7 @@ const TripDetailScreen = ({ route, navigation }: Props) => {
         data={listData}
         keyExtractor={(_, index) => String(index)}
         renderItem={renderRow}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, responsiveContentStyle]}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>

@@ -21,6 +21,7 @@ import { loadTrips } from '../utilities/tripStorage';
 import { useAds } from '../contexts/AdContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { PremiumUpsellModal } from '../components/PremiumUpsellModal/PremiumUpsellModal';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -36,6 +37,7 @@ export default function HomeScreen() {
   const [totalTrips, setTotalTrips] = useState(0);
   const [allTimeSaved, setAllTimeSaved] = useState(0);
   const [showUpsell, setShowUpsell] = useState(false);
+  const responsiveContentStyle = useResponsiveContentStyle();
 
   useFocusEffect(
     useCallback(() => {
@@ -74,7 +76,7 @@ export default function HomeScreen() {
       {/* Light content area */}
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, responsiveContentStyle]}
         showsVerticalScrollIndicator={false}
       >
         {/* Stat Cards */}
@@ -286,23 +288,26 @@ const styles = StyleSheet.create({
   buttonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderRadius: 16,
     gap: 14,
   },
   buttonTextWrap: {
-    flex: 1,
+    alignItems: 'center',
   },
   buttonText: {
     fontSize: 17,
     fontWeight: 'bold',
     color: 'white',
+    textAlign: 'center',
   },
   buttonSubtext: {
     fontSize: 13,
     color: 'rgba(255,255,255,0.8)',
     marginTop: 2,
+    textAlign: 'center',
   },
   featureCard: {
     flexDirection: 'row',

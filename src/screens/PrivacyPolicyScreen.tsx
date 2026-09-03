@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { useTheme } from '../contexts/ThemeContext';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 const PRIVACY_POLICY = `Last updated: May 22, 2026
 
@@ -127,6 +128,7 @@ interface Props {
 export default function PrivacyPolicyScreen({ onBack }: Props) {
   const { colors, isDarkMode } = useTheme();
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const responsiveContentStyle = useResponsiveContentStyle();
 
   const p = {
     background: colors.background,
@@ -164,7 +166,7 @@ export default function PrivacyPolicyScreen({ onBack }: Props) {
         <View style={[styles.scrollContainer, { backgroundColor: p.card, borderColor: p.cardBorder }]}>
           <ScrollView
             style={styles.scroll}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, responsiveContentStyle]}
             onScroll={handleScroll}
             scrollEventThrottle={100}
             showsVerticalScrollIndicator={true}

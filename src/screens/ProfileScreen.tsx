@@ -20,6 +20,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAds } from '../contexts/AdContext';
 import { PremiumUpsellModal } from '../components/PremiumUpsellModal/PremiumUpsellModal';
 import { ShoppingTrip, StoreId } from '../types';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 const PROFILE_NAME_KEY = '@profile_display_name';
 const PROFILE_DEFAULT_BUDGET_KEY = '@profile_default_budget';
@@ -36,6 +37,7 @@ const storeOptions: { value: PreferredStore; label: string; icon: string }[] = [
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { colors, isDarkMode } = useTheme();
+  const responsiveContentStyle = useResponsiveContentStyle();
   const { isPremium: _isPremium } = useAds();
   const isPremium = _isPremium;
   const [showUpsell, setShowUpsell] = useState(false);
@@ -199,7 +201,7 @@ const ProfileScreen = () => {
 
         <ScrollView
           style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, responsiveContentStyle]}
           showsVerticalScrollIndicator={false}
         >
           {/* Avatar */}

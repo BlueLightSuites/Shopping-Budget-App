@@ -20,6 +20,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types';
 import { AdBanner } from '../components/AdBanner/AdBanner';
 import { useTheme } from '../contexts/ThemeContext';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 type BudgetInputScreenNavigationProp = StackNavigationProp<RootStackParamList, 'BudgetInput'>;
 
@@ -28,6 +29,7 @@ export default function BudgetInputScreen() {
   const { colors, isDarkMode } = useTheme();
   const [budget, setBudget] = useState('100.00');
   const [currencySymbol, setCurrencySymbol] = useState('$');
+  const responsiveContentStyle = useResponsiveContentStyle();
 
   useEffect(() => {
     const locale = Intl.DateTimeFormat().resolvedOptions().locale;
@@ -88,7 +90,7 @@ export default function BudgetInputScreen() {
         style={styles.keyboardView}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, responsiveContentStyle]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >

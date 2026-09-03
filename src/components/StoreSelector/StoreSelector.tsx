@@ -22,6 +22,7 @@ import { AdBanner } from '../AdBanner/AdBanner';
 import { useAds } from '@/contexts/AdContext';
 import { PremiumUpsellModal } from '../PremiumUpsellModal/PremiumUpsellModal';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useResponsiveContentStyle } from '@/utilities/responsive';
 
 const ZIP_STORAGE_KEY = '@last_zip_code';
 
@@ -45,6 +46,7 @@ const StoreSelector = () => {
   const navigation = useNavigation<StoreLocatorNavigationProp>();
   const { isPremium } = useAds();
   const { colors, isDarkMode } = useTheme();
+  const responsiveContentStyle = useResponsiveContentStyle();
   const [selectedStore, setSelectedStore] = useState<number | null>(null);
   const [zipCode, setZipCode] = useState('');
   const [showUpsell, setShowUpsell] = useState(false);
@@ -131,7 +133,7 @@ const StoreSelector = () => {
       >
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, responsiveContentStyle]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >

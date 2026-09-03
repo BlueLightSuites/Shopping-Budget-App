@@ -21,6 +21,7 @@ import { useBiometric } from '../contexts/BiometricContext';
 import { useAds } from '../contexts/AdContext';
 import { PremiumUpsellModal } from '../components/PremiumUpsellModal/PremiumUpsellModal';
 import { useTheme } from '../contexts/ThemeContext';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 type SettingsNavigationProp = StackNavigationProp<RootStackParamList, 'Settings'>;
 
@@ -31,6 +32,7 @@ const SettingsScreen = () => {
   const { biometricEnabled, isSupported, toggleBiometric } = useBiometric();
   const { isPremium } = useAds();
   const { isDarkMode, toggleDarkMode, colors } = useTheme();
+  const responsiveContentStyle = useResponsiveContentStyle();
   const [showUpsell, setShowUpsell] = useState(false);
 
   const handleClearData = () => {
@@ -125,7 +127,7 @@ const SettingsScreen = () => {
         {/* Content */}
         <ScrollView
           style={styles.content}
-          contentContainerStyle={styles.contentContainer}
+          contentContainerStyle={[styles.contentContainer, responsiveContentStyle]}
           showsVerticalScrollIndicator={false}
         >
           {/* Top Ad Banner */}

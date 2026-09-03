@@ -8,6 +8,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList, CartItem, StoreId } from '../types';
 import { saveTrip } from '../utilities/tripStorage';
 import { useTheme } from '../contexts/ThemeContext';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 // ShoppingItem type for local use
 type ShoppingItem = {
@@ -35,6 +36,7 @@ const MainShoppingScreen: React.FC = () => {
   const [shownMilestones, setShownMilestones] = useState<number[]>([]);
   const [tripFinished, setTripFinished] = useState(false);
   const { colors } = useTheme();
+  const responsiveContentStyle = useResponsiveContentStyle();
 
   // Sync items when route params are updated (e.g. returning from ScanViewScreen)
   useEffect(() => {
@@ -159,7 +161,7 @@ const MainShoppingScreen: React.FC = () => {
         }))}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, responsiveContentStyle]}
         style={styles.list}
         ListEmptyComponent={
           <View style={styles.emptyState}>

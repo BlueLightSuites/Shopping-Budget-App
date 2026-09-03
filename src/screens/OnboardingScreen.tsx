@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useTheme } from '../contexts/ThemeContext';
+import { useResponsiveContentStyle } from '../utilities/responsive';
 
 export const TERMS_VERSION = '1.0';
 export const TERMS_STORAGE_KEY = '@terms_accepted_version';
@@ -98,6 +99,7 @@ const lightPalette = {
 
 export default function OnboardingScreen({ onAccept, viewOnly = false, onBack }: Props) {
   const { colors, isDarkMode } = useTheme();
+  const responsiveContentStyle = useResponsiveContentStyle();
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
 
@@ -154,7 +156,7 @@ export default function OnboardingScreen({ onAccept, viewOnly = false, onBack }:
         <View style={[styles.scrollContainer, { backgroundColor: p.card, borderColor: p.cardBorder }]}>
           <ScrollView
             style={styles.scroll}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, responsiveContentStyle]}
             onScroll={handleScroll}
             scrollEventThrottle={100}
             showsVerticalScrollIndicator={true}
