@@ -179,6 +179,8 @@ export default function ScanViewScreen() {
     setTimeout(() => {
       setScanned(false);
       setScannedProduct(null);
+      setScannedBarcode('');
+      setResolvedBarcode('');
     }, 1000);
   };
 
@@ -188,6 +190,8 @@ export default function ScanViewScreen() {
     setTimeout(() => {
       setScanned(false);
       setScannedProduct(null);
+      setScannedBarcode('');
+      setResolvedBarcode('');
     }, 500);
   };
 
