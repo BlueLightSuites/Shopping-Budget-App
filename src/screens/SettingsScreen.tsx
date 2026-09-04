@@ -9,6 +9,8 @@ import {
   ScrollView,
   Switch,
   Alert,
+  Linking,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,10 +32,25 @@ const SettingsScreen = () => {
   // TODO v2.0: Implement push notifications with deal alerts and shopping reminders
   // This will require a backend + expo-notifications integration
   const { biometricEnabled, isSupported, toggleBiometric } = useBiometric();
-  const { isPremium } = useAds();
+  // const { isPremium } = useAds();
+  const isPremium = true;
   const { isDarkMode, toggleDarkMode, colors } = useTheme();
   const responsiveContentStyle = useResponsiveContentStyle();
   const [showUpsell, setShowUpsell] = useState(false);
+
+  const handleManageSubscription = () => {
+    const url = Platform.OS === 'ios'
+      ? 'itms-apps://apps.apple.com/account/subscriptions'
+      : 'https://play.google.com/store/account/subscriptions';
+    Linking.openURL(url).catch(() => {
+      Alert.alert(
+        'Unable to Open',
+        Platform.OS === 'ios'
+          ? 'Please open the App Store app and go to your account settings to manage your subscription.'
+          : 'Please open the Play Store app and go to your account settings to manage your subscription.'
+      );
+    });
+  };
 
   const handleClearData = () => {
     Alert.alert(
@@ -143,6 +160,14 @@ const SettingsScreen = () => {
                 subtitle="Manage your profile information"
                 onPress={() => navigation.navigate('Profile')}
               />
+              {isPremium && (
+                <SettingItem
+                  icon="card"
+                  title="Manage Subscription"
+                  subtitle="View, change, or cancel your Premium subscription"
+                  onPress={handleManageSubscription}
+                />
+              )}
             </View>
           </View>
 
@@ -171,8 +196,8 @@ const SettingsScreen = () => {
                   !isPremium
                     ? 'Premium feature — tap to upgrade'
                     : isSupported
-                    ? 'Use Face ID or Touch ID to unlock'
-                    : 'Not available on this device'
+                      ? 'Use Face ID or Touch ID to unlock'
+                      : 'Not available on this device'
                 }
                 value={isPremium ? biometricEnabled : false}
                 onToggle={(value) => {

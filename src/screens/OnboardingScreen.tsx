@@ -107,15 +107,15 @@ export default function OnboardingScreen({ onAccept, viewOnly = false, onBack }:
   // Settings view follows the active theme.
   const p = viewOnly
     ? {
-        background: colors.background,
-        card: colors.card,
-        cardBorder: colors.cardBorder,
-        textPrimary: colors.textPrimary,
-        textSecondary: colors.textSecondary,
-        textMuted: colors.textMuted,
-        scrollHintBg: isDarkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
-        checkboxDisabled: colors.inputBorder,
-      }
+      background: colors.background,
+      card: colors.card,
+      cardBorder: colors.cardBorder,
+      textPrimary: colors.textPrimary,
+      textSecondary: colors.textSecondary,
+      textMuted: colors.textMuted,
+      scrollHintBg: isDarkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
+      checkboxDisabled: colors.inputBorder,
+    }
     : lightPalette;
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -296,6 +296,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     gap: 12,
+    maxWidth: '70%',
+    left: '15%'
   },
   checkboxRow: {
     flexDirection: 'row',
