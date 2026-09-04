@@ -32,8 +32,7 @@ const SettingsScreen = () => {
   // TODO v2.0: Implement push notifications with deal alerts and shopping reminders
   // This will require a backend + expo-notifications integration
   const { biometricEnabled, isSupported, toggleBiometric } = useBiometric();
-  // const { isPremium } = useAds();
-  const isPremium = true;
+  const { isPremium } = useAds();
   const { isDarkMode, toggleDarkMode, colors } = useTheme();
   const responsiveContentStyle = useResponsiveContentStyle();
   const [showUpsell, setShowUpsell] = useState(false);
