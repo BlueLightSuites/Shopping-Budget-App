@@ -87,10 +87,8 @@ yarn-debug.log*
 *.tsbuildinfo
 
 # npm
-package-lock.json
-
-# Lockfiles you _do_ want to keep (example)
-# Keep yarn.lock or pnpm-lock.yaml if you rely on them
+# package-lock.json is intentionally tracked. Ignoring it let a stale
+# node_modules tree from one branch break `npm install` on another.
 
 # Fastlane
 fastlane/report.xml
