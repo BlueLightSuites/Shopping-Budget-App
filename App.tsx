@@ -6,8 +6,8 @@ import { StatusBar } from 'react-native';
 import { AdProvider } from './src/contexts/AdContext';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { useEffect } from 'react';
-import Qonversion, { QonversionConfigBuilder, LaunchMode, Environment } from '@qonversion/react-native-sdk';
 import Constants from 'expo-constants';
+import { getQonversion } from './src/services/qonversion';
 
 const QONVERSION_PROJECT_KEY = Constants.expoConfig?.extra?.QONVERSION_PROJECT_KEY ?? '';
 
@@ -15,11 +15,12 @@ function PurchasesConfig() {
   useEffect(() => {
     // @qonversion/react-native-sdk requires a native build — it cannot run in Expo Go.
     // Use `npx expo run:ios` or `eas build` to test in-app purchases.
-    const isExpoGo = Constants.executionEnvironment === 'storeClient';
-    if (isExpoGo) {
+    const qonversion = getQonversion();
+    if (!qonversion) {
       console.warn('[Qonversion] Skipping SDK init — native IAP is not supported in Expo Go. Build a dev client to test purchases.');
       return;
     }
+    const { default: Qonversion, QonversionConfigBuilder, LaunchMode, Environment } = qonversion;
     try {
       // Use SANDBOX only for local dev builds (__DEV__ === true).
       // For ALL signed builds — including TestFlight (preview/production profiles) and the App Store —

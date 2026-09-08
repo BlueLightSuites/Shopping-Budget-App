@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import Constants from 'expo-constants';
-import Qonversion from '@qonversion/react-native-sdk';
+import { getQonversion } from '@/services/qonversion';
 
 /** Number of trips visible to free-tier users in Recent Trips */
 export const FREE_TRIP_LIMIT = 3;
@@ -19,9 +18,9 @@ export const AdProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // On mount, verify premium entitlements directly from Qonversion (server-authoritative).
   // Never rely solely on local storage — it can be tampered with on jailbroken devices.
   useEffect(() => {
-    const isExpoGo = Constants.executionEnvironment === 'storeClient';
-    if (isExpoGo) return; // Qonversion SDK not available in Expo Go
-    Qonversion.getSharedInstance()
+    const qonversion = getQonversion();
+    if (!qonversion) return; // Qonversion SDK not available in Expo Go
+    qonversion.default.getSharedInstance()
       .checkEntitlements()
       .then((entitlements) => {
         const active = entitlements.get('premium_access')?.isActive ?? false;

@@ -10,8 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAds } from '@/contexts/AdContext';
-import Qonversion from '@qonversion/react-native-sdk';
-import Constants from 'expo-constants';
+import { getQonversion } from '@/services/qonversion';
 
 interface PremiumUpsellModalProps {
   visible: boolean;
@@ -34,9 +33,11 @@ const PREMIUM_FEATURES: { icon: string; text: string }[] = [
  * and checks whether the 'premium' entitlement is active.
  */
 async function startPurchaseFlow(): Promise<boolean> {
-  if (Constants.executionEnvironment === 'storeClient') {
+  const qonversion = getQonversion();
+  if (!qonversion) {
     throw new Error('In-app purchases are not available in Expo Go. Please use a development build.');
   }
+  const Qonversion = qonversion.default;
 
   // Fetch all configured products from the Qonversion dashboard.
   const products = await Qonversion.getSharedInstance().products();

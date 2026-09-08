@@ -7,12 +7,6 @@
     "orientation": "portrait",
     "icon": "./assets/scrimpr_app_icon_1024.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -27,9 +21,9 @@
     "android": {
       "package": "com.bluelightsuitesllc.scrimpr",
       "adaptiveIcon": {
-          "foregroundImage": "./assets/scrimpr_app_icon_1024.png",
-          "backgroundColor": "#FFFFFF"
-        },
+        "foregroundImage": "./assets/scrimpr_app_icon_1024.png",
+        "backgroundColor": "#FFFFFF"
+      },
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO",
@@ -42,9 +36,18 @@
     "plugins": [
       "expo-dev-client",
       "expo-camera",
-      "expo-av",
       "expo-font",
-      "expo-asset"
+      "expo-asset",
+      "expo-secure-store",
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
     ],
     "extra": {
       "KROGER_CLIENT_ID": "price-scanner-bbc668lf",

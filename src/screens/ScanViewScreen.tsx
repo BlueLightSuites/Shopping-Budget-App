@@ -165,15 +165,31 @@ export default function ScanViewScreen() {
   const handleItemConfirmed = (quantity: number) => {
     setShowItemModal(false);
     if (scannedProduct) {
-      setItems((prev) => [
-        ...prev,
-        {
-          product: scannedProduct,
-          quantity,
-          totalPrice: scannedProduct.price * quantity,
-          storeId: store,
-        },
-      ]);
+      setItems((prev) => {
+        const existingIndex = prev.findIndex(
+          (item) => item.product.barcode === scannedProduct.barcode && item.storeId === store
+        );
+        if (existingIndex !== -1) {
+          const updated = [...prev];
+          const existing = updated[existingIndex];
+          const newQuantity = existing.quantity + quantity;
+          updated[existingIndex] = {
+            ...existing,
+            quantity: newQuantity,
+            totalPrice: existing.product.price * newQuantity,
+          };
+          return updated;
+        }
+        return [
+          ...prev,
+          {
+            product: scannedProduct,
+            quantity,
+            totalPrice: scannedProduct.price * quantity,
+            storeId: store,
+          },
+        ];
+      });
     }
     // Reset scanned state after a short delay to allow scanning again
     setTimeout(() => {
@@ -208,15 +224,31 @@ export default function ScanViewScreen() {
       brand: undefined,
       category: undefined,
     };
-    setItems((prev) => [
-      ...prev,
-      {
-        product: manualProduct,
-        quantity,
-        totalPrice: price * quantity,
-        storeId: store,
-      },
-    ]);
+    setItems((prev) => {
+      const existingIndex = scannedBarcode
+        ? prev.findIndex((item) => item.product.barcode === scannedBarcode && item.storeId === store)
+        : -1;
+      if (existingIndex !== -1) {
+        const updated = [...prev];
+        const existing = updated[existingIndex];
+        const newQuantity = existing.quantity + quantity;
+        updated[existingIndex] = {
+          ...existing,
+          quantity: newQuantity,
+          totalPrice: existing.product.price * newQuantity,
+        };
+        return updated;
+      }
+      return [
+        ...prev,
+        {
+          product: manualProduct,
+          quantity,
+          totalPrice: price * quantity,
+          storeId: store,
+        },
+      ];
+    });
     // Reset scanned state after a short delay to allow scanning again
     setTimeout(() => {
       setScanned(false);
