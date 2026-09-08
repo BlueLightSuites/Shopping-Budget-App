@@ -11,8 +11,9 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
       "bundleIdentifier": "com.bluelightsuitesllc.scrimpr",
+      "appleTeamId": "8VMQZF3T8V",
+      "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan barcodes for product information.",
         "NSMicrophoneUsageDescription": "This app uses the microphone for audio feedback."
